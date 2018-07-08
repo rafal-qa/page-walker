@@ -12,6 +12,18 @@ It also validates HTML code (before and after JavaScript execution) and generate
 * Source code: [github.com/rafal-qa/page-walker](https://github.com/rafal-qa/page-walker)
 * Stand-alone executables: [github.com/rafal-qa/page-walker/releases](https://github.com/rafal-qa/page-walker/releases)
 
+## Table of contents
+
+* [Getting started](#getting-started)
+* [Running from source code](#running-from-source-code)
+* [Features](#features)
+* [Configuration](#configuration)
+* [Limitations and known problems](#limitations-and-known-problems)
+* [More information](#more-information)
+* [TODO](#todo)
+* [License](#license)
+* [Acknowledgments](#acknowledgments)
+
 ## Getting started
 
 For quick start use [stand-alone version](https://github.com/rafal-qa/page-walker/releases). It's a compiled application with all dependencies. No installation or configuration needed (it works on reasonable defaults). Just run.
@@ -130,9 +142,9 @@ You can run Page Walker without any parameters. It's the same as double-clicking
 
 | Command line argument | Config file parameter | Default value | Description |
 | --------------------- | --------------------- | ------------- | ------- |
-| `-u` or <nobr>`--url`</nobr> | `start_url` | | URL of first page to visit, with `http(s)://`. |
-| `-p` or <nobr>`--pages`</nobr> | `max_number_pages` | 10 | Maximum number of pages to visit. |
-| `-l` or <nobr>`--headless`</nobr> | `chrome_headless` | no | [yes/no] Run Chrome in headless mode. |
+| `-u` or `--url` | `start_url` | | URL of first page to visit, with `http(s)://`. |
+| `-p` or `--pages` | `max_number_pages` | 10 | Maximum number of pages to visit. |
+| `-l` or `--headless` | `chrome_headless` | no | [yes/no] Run Chrome in headless mode. |
 | `--pages-list` | `pages_list_file` | | [Optional] File containing list of pages to visit. Pages relative to main domain, starting with `/`. |
 | `--list-only` | `pages_list_only` | yes | [yes/no] Visit all and only pages from file, regardless of _maximum number of pages_ value. Option has no effect if file with pages list is not set. |
 | `--wait-after` | `wait_time_after_load` | 1 | Wait time (in seconds) after page was loaded (browser received `Load` event). Even after `Load` event the browser usually downloads some data so it's better to set it for 1-3 seconds.
@@ -141,7 +153,7 @@ You can run Page Walker without any parameters. It's the same as double-clicking
 | `--window-size` | `window_size` | 1366x768 | Size of browser window. |
 | `--close-on-finish` | `chrome_close_on_finish` | yes | [yes/no] Close browser after finish. For debugging you can set to _no_ to interact with browser after app has finished running. |
 | `--chrome-port` | `chrome_debugging_port` | 9222 | Chrome remote debugger port number. To run multiple tests in parallel set different port for every instance. |
-| <nobr>`--chrome-timeout`</nobr> | `chrome_timeout` | 30 | Chrome connection timeout in seconds. How long to wait for `Load` event. |
+| `--chrome-timeout` | `chrome_timeout` | 30 | Chrome connection timeout in seconds. How long to wait for `Load` event. |
 | `--chrome-binary` | `chrome_binary` | Auto-detected on Windows, `chromium-browser` otherwise. | Path to Chrome executable file. |
 | `--chrome-ignore-cert` | `chrome_ignore_cert` | no | [yes/no] Ignore SSL errors. Set to _yes_ if you want to test a website with invalid SSL certificate. |
 | `--validate` | `validator_enabled` | yes | [yes/no] Enable HTML validator. Set to _no_ if you don't have Java installed. |
