@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Summary</title>
+
+  <!-- libraries -->
+  <link rel="stylesheet" type="text/css" href="lib/semantic_custom.min.css">
+  <script src="lib/jquery-3.3.1.min.js"></script>
+  <script src="lib/semantic_custom.min.js"></script>
+  <!-- DataTables -->
+  <link rel="stylesheet" type="text/css" href="lib/dataTables.semanticui.min.css">
+  <script src="lib/jquery.dataTables.min.js"></script>
+  <script src="lib/dataTables.semanticui.min.js"></script>
+  <!-- data -->
+  <script src="data/summary.js"></script>
+  <!-- report -->
+  <link rel="stylesheet" type="text/css" href="lib/custom.css">
+  <script type="text/javascript">
+    var _report_ = 'summary';
+  </script>
+  <script src="js/reports/summary.js"></script>
+  <script src="js/init.js"></script>
+</head>
+<body>
+
+  <div id="main-menu" class="ui stackable six item menu">
+    <a href="index.html" data-report="summary" class="item">Summary</a>
+    <a href="pages.html" data-report="pages" class="item">Pages list <span class="ui basic label">&nbsp;</span></a>
+    <a href="resources.html" data-report="resources" class="item">Resources <span class="ui basic label">&nbsp;</span></a>
+    <a href="javascript.html" data-report="javascript" class="item">JavaScript <span class="ui basic label">&nbsp;</span></a>
+    <a href="devtools.html" data-report="devtools" class="item">DevTools logs <span class="ui basic label">&nbsp;</span></a>
+    <a href="validator.html" data-report="validator" class="item">HTML validator <span class="ui basic label">&nbsp;</span></a>
+  </div>
+
+  <div class="ui container">
+
+    <div class="ui hidden divider"></div>
+
+    <div id="stats-main" class="ui small statistics">
+      <div class="statistic stats-pages">
+        <div class="value">
+          --
+        </div>
+        <div class="label">
+          walked<br />pages
+        </div>
+      </div>
+      <div class="statistic stats-unique_errors">
+        <div class="value">
+          --
+        </div>
+        <div class="label">
+          total unique<br />errors
+        </div>
+      </div>
+      <div class="statistic stats-requests">
+        <div class="value">
+          --
+        </div>
+        <div class="label">
+          total<br />requests
+        </div>
+      </div>
+      <div class="statistic stats-data_total">
+        <div class="value">
+          --
+        </div>
+        <div class="label">
+          total data<br />downloaded [MB]
+        </div>
+      </div>
+    </div>
+
+    <div class="ui hidden divider"></div>
+
+    <div class="ui two column stackable container grid">
+
+      <div class="column">
+        <table class="ui definition unstackable padded table">
+          <tbody>
+            <tr>
+              <td>Hostname</td>
+              <td class="info-page_host"></td>
+            </tr>
+            <tr>
+              <td>Start URL</td>
+              <td class="info-page_start"></td>
+            </tr>
+            <tr>
+              <td>Started</td>
+              <td class="info-time_start"></td>
+            </tr>
+              <tr>
+              <td>Finished</td>
+              <td class="info-time_end"></td>
+            </tr>
+            <tr>
+              <td>Chrome version</td>
+              <td class="info-chrome_version"></td>
+            </tr>
+            <tr>
+              <td>Headless mode</td>
+              <td class="info-headless"></td>
+            </tr>
+            <tr>
+              <td>DevTools Protocol</td>
+              <td class="info-devtools_protocol"></td>
+            </tr>
+            <tr>
+              <td>Page Walker version</td>
+              <td class="info-app_version"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="column">
+        <table class="ui definition unstackable padded table">
+          <tbody>
+            <tr>
+              <td>Max. walked pages</td>
+              <td class="info-max_number_pages"></td>
+            </tr>
+            <tr>
+              <td>Other pages found (not walked)</td>
+              <td class="info-unvisited_pages"></td>
+            </tr>
+            <tr>
+              <td>Wait after page load [sec]</td>
+              <td class="info-wait_time_after_load"></td>
+            </tr>
+            <tr>
+              <td>Scroll after page load</td>
+              <td class="info-scroll_after_load"></td>
+            </tr>
+            <tr>
+              <td>Window size (width x height)</td>
+              <td class="info-window_size"></td>
+            </tr>
+            <tr>
+              <td>Chrome timeout [sec]</td>
+              <td class="info-chrome_timeout"></td>
+            </tr>
+            <tr>
+              <td>Validate HTML</td>
+              <td class="info-validator_enabled"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="validator-details-table">
+          <h3 class="ui header">HTML validator details</h3>
+          <table class="ui definition unstackable padded table">
+            <tbody>
+              <tr>
+                <td>v.Nu version</td>
+                <td class="info-vnu_version"></td>
+              </tr>
+              <tr>
+                <td>Validate CSS</td>
+                <td class="info-validator_css"></td>
+              </tr>
+              <tr>
+                <td>Show warnings</td>
+                <td class="info-validator_warnings"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="ui vertical footer">
+    <div class="ui container right aligned">
+      <div class="ui divider"></div>
+      Generated by <a href="https://rafal-qa.com/page-walker/">Page Walker</a>
+    </div>
+  </div>
+
+</body>
+</html>

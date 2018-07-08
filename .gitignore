@@ -1,0 +1,4 @@
+output/
+temp/
+lib/vnu/
+*.pyc

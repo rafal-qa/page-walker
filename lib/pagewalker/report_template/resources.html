@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Resources</title>
+
+  <!-- libraries -->
+  <link rel="stylesheet" type="text/css" href="lib/semantic_custom.min.css">
+  <script src="lib/jquery-3.3.1.min.js"></script>
+  <script src="lib/semantic_custom.min.js"></script>
+  <!-- DataTables -->
+  <link rel="stylesheet" type="text/css" href="lib/dataTables.semanticui.min.css">
+  <script src="lib/jquery.dataTables.min.js"></script>
+  <script src="lib/dataTables.semanticui.min.js"></script>
+  <!-- data -->
+  <script src="data/summary.js"></script>
+  <script src="data/pages.js"></script>
+  <script src="data/resources.js"></script>
+  <!-- report -->
+  <link rel="stylesheet" type="text/css" href="lib/custom.css">
+  <script type="text/javascript">
+    var _report_ = 'resources';
+  </script>
+  <script src="js/data_parser.js"></script>
+  <script src="js/report.js"></script>
+  <script src="js/reports/resources.js"></script>
+  <script src="js/init.js"></script>
+
+</head>
+<body>
+
+  <div id="main-menu" class="ui stackable six item menu">
+    <a href="index.html" data-report="summary" class="item">Summary</a>
+    <a href="pages.html" data-report="pages" class="item">Pages list <span class="ui basic label">&nbsp;</span></a>
+    <a href="resources.html" data-report="resources" class="item">Resources <span class="ui basic label">&nbsp;</span></a>
+    <a href="javascript.html" data-report="javascript" class="item">JavaScript <span class="ui basic label">&nbsp;</span></a>
+    <a href="devtools.html" data-report="devtools" class="item">DevTools logs <span class="ui basic label">&nbsp;</span></a>
+    <a href="validator.html" data-report="validator" class="item">HTML validator <span class="ui basic label">&nbsp;</span></a>
+  </div>
+
+  <div class="ui container">
+
+    <div class="ui hidden divider"></div>
+
+    <div id="help-button">
+      <button class="ui left labeled icon blue right floated button">
+        <i class="left question icon"></i> Help
+      </button>
+      <div class="ui clearing hidden divider"></div>
+    </div>
+
+    <div id="help-message">
+      <div class="ui info message">
+        <i class="close icon"></i>
+        <div class="header">
+          Resources downloaded while loading pages
+        </div>
+        Resource: image, CSS, JS, etc.<br />
+        List of unique resources downloaded by all visited pages
+        <ul class="list">
+          <li><strong>Internal</strong> - From same domain</li>
+          <li><strong>External</strong> - From other domain, subdomain</li>
+          <li><strong>Number of requests</strong> - How many times this resource was used on all visited pages</li>
+          <li><strong>Failed requests</strong> - Number of requests with error (HTTP status 4xx/5xx or other problem)<br />
+          Click error count to open list of example pages on which the error occurred</li>
+          <li><strong>Cached requests</strong> - How often this resource was requested from cache</li>
+          <li><strong>Resource size</strong> - Average resource size calculated from non-cached requests<br />
+          Compressed size if compression on server is enabled</li>
+          <li><strong>Non-cached avg. load time</strong> - Average resource load time calculated from non-cached requests</li>
+          <li><strong>Unfinished requests</strong> - When the browser send request and go to the next page without waiting for a response<br />
+            For example asynchronous, non-blocking requests<br />
+            We are unable to determine if this is an error</li>
+        </ul>
+      </div>
+      <div class="ui clearing hidden divider"></div>
+    </div>
+
+    <div id="stats-main" class="ui small statistics">
+      <div class="statistic stats-error_internal">
+        <div class="value">
+          --
+        </div>
+        <div class="label">
+          internal<br />resources<br />with error
+        </div>
+      </div>
+      <div class="statistic stats-error_external">
+        <div class="value">
+          --
+        </div>
+        <div class="label">
+          external<br />resources<br />with error
+        </div>
+      </div>
+          <div class="statistic stats-cached_percent">
+        <div class="value">
+          --
+        </div>
+        <div class="label">
+          requests<br />from cache
+        </div>
+      </div>
+      <div class="statistic stats-external_percent">
+        <div class="value">
+          --
+        </div>
+        <div class="label">
+          requests to<br />external<br />resources
+        </div>
+      </div>
+    </div>
+
+      <div class="ui tabular menu">
+      <a data-tab="internal" class="item">
+        Internal
+      </a>
+      <a data-tab="external" class="item">
+        External
+      </a>
+    </div>
+
+    <div class="table-wrapper report-internal hidden">
+      <table class="ui selectable celled unstackable table">
+        <thead>
+          <tr>
+            <th>URL</th>
+            <th>Number of requests</th>
+            <th>Failed requests</th>
+            <th>Cached requests</th>
+            <th>Resource size [KB]</th>
+            <th>Non-cached avg. load time [ms]</th>
+            <th>Unfinished requests</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="table-wrapper report-external hidden">
+      <table class="ui selectable celled unstackable table">
+        <thead>
+          <tr>
+            <th>URL</th>
+            <th>Number of requests</th>
+            <th>Failed requests</th>
+            <th>Cached requests</th>
+            <th>Resource size [KB]</th>
+            <th>Non-cached avg. load time [ms]</th>
+            <th>Unfinished requests</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <div id="details-modal" class="ui modal">
+    <i class="close icon"></i>
+    <div class="header">
+      Failed requests
+    </div>
+    <div class="content">
+      <div class="description">
+        <div class="description">
+          <div class="ui red message">
+            <strong>Resource URL</strong><br />
+            <span class="resource-url"></span>
+          </div>
+        </div>
+      </div>
+      <table class="ui selectable celled table">
+        <thead>
+          <tr>
+            <th>Appeared on page</th>
+            <th>Resource status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="ui vertical footer hidden">
+    <div class="ui container right aligned">
+      <div class="ui divider"></div>
+      Generated by <a href="https://rafal-qa.com/page-walker/">Page Walker</a>
+    </div>
+  </div>
+
+</body>
+</html>

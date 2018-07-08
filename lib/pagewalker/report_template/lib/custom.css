@@ -1,0 +1,39 @@
+#main-menu span {
+    visibility: hidden;
+}
+
+mark {
+    background-color: #ffff80;
+}
+
+code {
+    font-size: 0.9em;
+}
+
+.table-wrapper.hidden {
+    display: none;
+}
+
+.ui.footer {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.footer.hidden {
+    display: none;
+}
+
+#help-message {
+    display: none;
+}
+
+code.ellipsis:before,
+code.ellipsis:after {
+    content: '...';
+    color: grey;
+}
+
+#details-modal .resource-url a {
+    color: inherit;
+    text-decoration: underline;
+}
