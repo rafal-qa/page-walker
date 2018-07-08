@@ -12,7 +12,7 @@ It also validates HTML code (before and after JavaScript execution) and generate
 * Source code: [github.com/rafal-qa/page-walker](https://github.com/rafal-qa/page-walker)
 * Stand-alone executables: [github.com/rafal-qa/page-walker/releases](https://github.com/rafal-qa/page-walker/releases)
 
-## Table of contents
+# Table of contents
 
 * [Getting started](#getting-started)
 * [Running from source code](#running-from-source-code)
@@ -24,7 +24,7 @@ It also validates HTML code (before and after JavaScript execution) and generate
 * [License](#license)
 * [Acknowledgments](#acknowledgments)
 
-## Getting started
+# Getting started
 
 For quick start use [stand-alone version](https://github.com/rafal-qa/page-walker/releases). It's a compiled application with all dependencies. No installation or configuration needed (it works on reasonable defaults). Just run.
 
@@ -63,11 +63,11 @@ On Linux, default Chrome browser is set to `chromium-browser`. Maybe on your sys
 
 Reports (test results) are saved to `output` directory. For example: `output/2018-07-04_17-45-08_251870/report/index.html`. For your convince you will notice file `output/latest_report.html` redirecting to the latest report.
 
-## Running from source code
+# Running from source code
 
 Page Walker is a cross-platform Python application. You can run it on any system (Windows, Linux, Mac).
 
-#### Requirements
+### Requirements
 
 * Python (at least 2.7 or 3.5)
 * Python modules
@@ -75,7 +75,7 @@ Page Walker is a cross-platform Python application. You can run it on any system
   * `websocket-client`
 * [v.Nu validator](https://github.com/validator/validator/releases) (18.3.0)
 
-#### Installation
+### Installation
 
 * Install Python modules
 ```
@@ -83,26 +83,26 @@ pip install --user -r requirements.txt
 ```
 * Download [v.Nu validator](https://github.com/validator/validator/releases) `vnu.jar_18.3.0.zip` and unpack to `lib` directory (`lib/vnu/vnu.jar`)
 
-#### Running
+### Running
 
 Open console, navigate to directory with `page-walker.py` and run for example:
 ```
 python page-walker.py -u http://example.com -p 5
 ```
 
-## Features
+# Features
 
 This is not list of all features. See _Configurable parameters_ table for more information.
 
-##### Interactive HTML reports
+#### Interactive HTML reports
 
 The result of `page-walker` run is [report like this](https://rafal-qa.com/pagewalker-example-report/). It's a stand-alone HTML/CSS/JavaScript page independent of Page Walker. You can browse it on local computer, send to someone, publish on your intranet. You can also easily integrate it with Jenkins (or other CI tools) - note `output/latest_report.html` file and `--keep-previous` option.
 
-##### Headless mode
+#### Headless mode
 
 Running Chrome in headless mode keeps browser window invisible. You can run tests on remote command line out-of-the-box.
 
-##### Validate HTML before/after JavaScript execution
+#### Validate HTML before/after JavaScript execution
 
 Feature called _2-step HTML validation_
 1. First step: Validate raw HTML, original page source received from server.
@@ -110,15 +110,15 @@ Feature called _2-step HTML validation_
 
 For HTML validation [Nu Html Checker (v.Nu)](https://validator.github.io/validator/) is used. The same library as used by [W3C Markup Validator](https://validator.w3.org/).
 
-##### Parallel test execution
+#### Parallel test execution
 
 Run multiple instances of same Chrome browser in parallel (or different versions if you wish). Just run multiple `page-walker` commands with different Chrome remote debugger port for every instance. If you run second instance with the same port number as already running, first instance will be stopped.
 
-##### Scrolling page after load
+#### Scrolling page after load
 
 This feature helps collect more data and detect more bugs. When page is loaded, scrolling to the bottom of page occurs. This action can fire more JavaScript events, AJAX requests, show more images. It you don't like this idea, you can disable it.
 
-##### Custom list of pages
+#### Custom list of pages
 
 By default Page Walker is finding links to other pages within domain and visiting them. When you have specific list of pages to visit in specific order, you can use it. Save this list in text file, one page per line. Every page is relative to domain. For URL `http://example.com/login` domain is `http://example.com` and page is `/login`. Provide path to this file in argument `--pages-list`.
 
@@ -126,21 +126,21 @@ Pay attention to `--list-only` argument.
 * If set to `yes`: only pages from list will be visited and no other pages. Option _maximum number of pages to visit_ has no effect.
 * If set to `no`: option _maximum number of pages to visit_ is taken into account. After visiting pages from list, pages found automatically will be visited.
 
-## Configuration
+# Configuration
 
-#### Interactive mode
+### Interactive mode
 
 You can run Page Walker without any parameters. It's the same as double-clicking stand-alone executable on Windows. You will be asked to provide URL of website to test, number of pages to visit and whether to run in headless mode.
 
-#### 3-level configuration
+### 3-level configuration
 
 1. Hard-coded defaults. Java and Chrome binary are dynamic and depends on operating system. On Windows location of installed Chrome is auto-detected.
 2. Configuration file `config/default.ini`. It overwrites hard-coded defaults. If parameter is empty or omitted, hard-coded default will be used. Use it to configure your environment: custom location of Chrome, Java, parameters that you do not plan to change.
 3. Command line arguments. It overwrites hard-coded defaults and configuration file parameters. Run with `-h` parameter to see all available options.
 
-#### Configurable parameters
+### Configurable parameters
 
-| Command line argument | Config file parameter | Default value | Description |
+| Command_line argument | Config file parameter | Default value | Description |
 | --------------------- | --------------------- | ------------- | ------- |
 | `-u` or `--url` | `start_url` | | URL of first page to visit, with `http(s)://`. |
 | `-p` or `--pages` | `max_number_pages` | 10 | Maximum number of pages to visit. |
@@ -199,37 +199,37 @@ page-walker -u http://example.com/ -p 100 --headless yes
 page-walker -u http://example.org/ -p 100 --headless yes --chrome-port 9223
 ```
 
-## Limitations and known problems
+# Limitations and known problems
 
-##### ERROR: Config file 'config/default.ini' not found
+#### ERROR: Config file 'config/default.ini' not found
 
 You got this error when program was run from different location than from folder with program. It will be changed soon.
 
-##### ERROR: Start URL returned HTTP error '405'
+#### ERROR: Start URL returned HTTP error '405'
 
 Before Chrome start, URL is checked using `HEAD` request. This is [standard HTTP method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD) but some servers don't support it or block. In this case you got `405 Method Not Allowed` error. **[TODO] More technical details soon.**
 
-##### ERROR: Unable to connect to Chrome remote debugger (see log file for details)
+#### ERROR: Unable to connect to Chrome remote debugger (see log file for details)
 
 Chrome logs are saved to `output/{date}_{time}/chrome_run.log`. Probably there is some Chrome issue, not related to Page Walker. For debugging purposes run Chrome from console. If `chrome_run.log` is empty, maybe you are trying to run Chrome in non-headless mode on remote server without GUI.
 
-##### ERROR: Program not found: chromium-browser
+#### ERROR: Program not found: chromium-browser
 
 On Linux `chromium-browser` is default Chrome location. Add custom name for example: `--chrome-binary google-chrome`.
 
-##### [FAIL] Network.getResponseBody | No resource with given identifier found
+#### [FAIL] Network.getResponseBody | No resource with given identifier found
 
 This error does not stop program, only appears in the console. It occurs when Chrome lost information about some response received previously. Usually caused by non HTTP redirection to other page.
 
-##### net::ERR_ABORTED
+#### net::ERR_ABORTED
 
 You can see this error in HTML report. Sometimes lots of them. When using DevTools manually it's equivalent to `(canceled)` error in _Network_ tab. The reasons may be different, and sometimes difficult to reproduce. [Read this great topic on StackOverflow](https://stackoverflow.com/questions/12009423/what-does-status-canceled-for-a-resource-mean-in-chrome-developer-tools). This can be related to some page issues, so it's worth analyzing.
 
-##### Can't automatically login
+#### Can't automatically login
 
 For now you can't browse pages requiring login, closed sections. If website shows some annoying popup on every page (cookie info, data protection related message) you can't automatically click to hide this.
 
-## More information
+# More information
 
 * [How it works](docs/how-it-works.md)
 * [Changelog](CHANGELOG.md)
@@ -244,7 +244,7 @@ What improvements you can expect in future releases.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.
 
 ## Acknowledgments
 
