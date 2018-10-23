@@ -4,8 +4,8 @@ from pagewalker.config import config_validator, config_file_parser, java_checker
 from pagewalker.config.config_default import main_config
 from pagewalker import prepare_directories
 from pagewalker import get_versions
-from pagewalker.utilities import console_utils, url_utils, error_utils
-from pagewalker.analyzer import analyzer
+from pagewalker.utilities import console_utils, error_utils
+from pagewalker.analyzer import analyzer, http_headers_analyzer
 from pagewalker.report import report
 
 
@@ -95,7 +95,7 @@ if args.java_binary is not None:
 
 if main_config["validator_enabled"]:
     check_java = java_checker.JavaChecker(main_config["java_binary"])
-    if check_java.continue_with_no_java:
+    if not check_java.is_installed():
         main_config["validator_enabled"] = False
 
 if console_utils.interactive_mode:
@@ -115,7 +115,8 @@ if console_utils.interactive_mode:
 if not main_config["start_url"]:
     error_utils.exit_with_message("Start URL is required")
 
-url_utils.check_valid_200_html(main_config["start_url"], main_config["chrome_timeout"])
+http_headers = http_headers_analyzer.HTTPHeadersAnalyzer(main_config["chrome_timeout"])
+http_headers.check_200_ok_html(main_config["start_url"])
 
 make_dirs = prepare_directories.PrepareDirectories(main_config["output_data"], main_config["keep_previous_data"])
 make_dirs.create()

@@ -1,7 +1,7 @@
 from os import path
 from .devtools import remote_debug, response_parser
-from pagewalker.utilities import url_utils
-from . import database_admin, database_writer, html_parser, html_validator
+from .database import database_admin, database_writer
+from . import html_parser, links_parser, html_validator, http_headers_analyzer
 
 
 class Analyzer(object):
@@ -87,15 +87,10 @@ class Analyzer(object):
             page_id,
             url
         )
-        db_page_writer.change_status_started()
+        db_page_writer.completion_status_started()
 
-        valid_for_chrome = url_utils.check_valid_for_chrome(url, self.timeout)
-        if valid_for_chrome["status"] == "no":
-            db_page_writer.change_status_finished(valid_for_chrome["error_name"])
-            return
-        elif valid_for_chrome["status"] == "file":
-            db_page_writer.save_page_as_file(valid_for_chrome["content_type"], valid_for_chrome["content_length"])
-            db_page_writer.change_status_finished()
+        continue_with_chrome = self._headers_analysis_before_chrome(db_page_writer, url)
+        if not continue_with_chrome:
             return
 
         devtools_remote = self.devtools_remote
@@ -117,7 +112,34 @@ class Analyzer(object):
 
         main_request_id = parsed_logs["general"]["main_request_id"]
         self._process_html_code(db_page_writer, main_request_id)
-        db_page_writer.change_status_finished()
+
+        db_page_writer.set_page_http_status(devtools_parser.get_main_request_http_status())
+        db_page_writer.completion_status_finished()
+
+    def _headers_analysis_before_chrome(self, db_writer, url):
+        http_headers = http_headers_analyzer.HTTPHeadersAnalyzer(self.timeout)
+        url_result = http_headers.analyze_for_chrome(url)
+        status = url_result["status"]
+        if status == "ok":
+            return True
+
+        if status == "request_exception":
+            db_writer.set_connection_exception(url_result["error_name"])
+        elif status == "is_redirect":
+            self._add_page_from_redirect(db_writer, url_result["location"])
+        elif status == "is_file":
+            db_writer.mark_page_as_file(url_result["content_type"], url_result["content_length"])
+        db_writer.set_page_http_status(url_result["http_code"])
+        db_writer.completion_status_finished()
+        return False
+
+    def _add_page_from_redirect(self, db_writer, location):
+        if not location:
+            return
+        links = links_parser.LinksParser(db_writer.get_url())
+        internal_links = links.get_internal_relative([location])
+        if internal_links:
+            db_writer.add_internal_links(internal_links)
 
     def _process_html_code(self, db_writer, request_id):
         html_raw = self.devtools_remote.get_html_raw(request_id)
@@ -126,10 +148,12 @@ class Analyzer(object):
         self.validator.add_to_queue(db_writer.get_page_id(), html_raw, html_dom)
 
     def _save_new_links(self, db_writer, html_dom):
-        parser = html_parser.MyHtmlParser(db_writer.get_url())
-        parser.feed(html_dom)
-        links = parser.get_links()
-        db_writer.add_internal_links(links["internal"])
+        html = html_parser.MyHtmlParser()
+        html.feed(html_dom)
+        links = links_parser.LinksParser(db_writer.get_url(), html.get_base_href())
+        all_links = html.get_found_links()
+        internal_links = links.get_internal_relative(all_links)
+        db_writer.add_internal_links(internal_links)
 
     def _save_chrome_version(self, db_admin, devtools_remote):
         version = devtools_remote.get_version()

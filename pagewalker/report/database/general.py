@@ -18,19 +18,19 @@ class DatabaseGeneral(object):
     def summary(self):
         c = self.conn.cursor()
         c.execute(
-            "SELECT COUNT(*) FROM pages WHERE status > 0"
+            "SELECT COUNT(*) FROM pages WHERE completion_status > 0"
         )
         data_summary = {
             "pages": c.fetchone()[0]
         }
 
         c.execute(
-            "SELECT COUNT(*) FROM requests"
+            "SELECT COUNT(*) FROM devtools_request"
         )
         data_summary["requests"] = c.fetchone()[0]
 
         c.execute(
-            "SELECT SUM(data_received) FROM requests"
+            "SELECT SUM(data_received) FROM devtools_request"
         )
         data_summary["data_total"] = c.fetchone()[0]
 

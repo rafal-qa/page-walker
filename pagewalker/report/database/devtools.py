@@ -7,8 +7,8 @@ class DatabaseDevtools(object):
         c = self.conn.cursor()
         c.execute("""
             SELECT P.log_id, COUNT(*), L.level_id, L.source_id, L.description
-            FROM pages_devtools_logs AS P
-            JOIN devtools_logs AS L
+            FROM devtools_console AS P
+            JOIN devtools_console_log AS L
                 ON P.log_id = L.id
             GROUP BY P.log_id
         """)
@@ -30,7 +30,7 @@ class DatabaseDevtools(object):
         max_occurrences = 10
         c = self.conn.cursor()
         c.execute(
-            "SELECT DISTINCT page_id, log_id FROM pages_devtools_logs ORDER BY page_id"
+            "SELECT DISTINCT page_id, log_id FROM devtools_console ORDER BY page_id"
         )
         result = c.fetchall()
         data_logs = {}

@@ -10,8 +10,8 @@ class DatabaseValidator(object):
         c = self.conn.cursor()
         c.execute("""
             SELECT V.message_id, COUNT(*), M.is_error, M.description
-            FROM pages_validator AS V
-            JOIN validator_messages AS M
+            FROM html_validator AS V
+            JOIN html_validator_message AS M
                 ON V.message_id = M.id
             WHERE V.html_type = ?
             GROUP BY V.message_id
@@ -33,8 +33,8 @@ class DatabaseValidator(object):
         c = self.conn.cursor()
         c.execute("""
             SELECT COUNT(*), V.message_id, E.extract_json
-            FROM pages_validator AS V
-            JOIN validator_extracts AS E
+            FROM html_validator AS V
+            JOIN html_validator_extract AS E
                 ON V.extract_id = E.id
             WHERE V.html_type = ?
             GROUP BY V.message_id, V.extract_id
@@ -52,8 +52,8 @@ class DatabaseValidator(object):
         c = self.conn.cursor()
         c.execute("""
             SELECT V.page_id, V.message_id, V.extract_id, V.line, E.extract_json
-            FROM pages_validator AS V
-            JOIN validator_extracts AS E
+            FROM html_validator AS V
+            JOIN html_validator_extract AS E
                 ON V.extract_id = E.id
             WHERE V.html_type = ?
             ORDER BY V.page_id

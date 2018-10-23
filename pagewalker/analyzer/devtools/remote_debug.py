@@ -32,19 +32,22 @@ class DevtoolsRemoteDebug(object):
     def start_session(self):
         self.debugger_socket.close_existing_session()
         filesystem_utils.clean_directory(self.profile_dir)
-        self._print_start_message()
         chrome_log = open(self.log_file, "w")
         try:
             Popen(self.command_parts, stdout=chrome_log, stderr=chrome_log)
         except OSError:
-            error_utils.exit_with_message("Program not found: %s" % self.chrome)
+            message = "Chrome not found at location: %s" % self.chrome
+            message += "\nFind location of Chrome/Chromium in your system and configure it in:"
+            message += "\n* config/default.ini file (option: chrome_binary)"
+            message += "\n* or command line parameter --chrome-binary"
+            error_utils.exit_with_message(message)
+        self._print_start_message()
         self.debugger_socket.connect_to_remote_debugger()
         self._enable_features()
 
     def _print_start_message(self):
         print("")
-        print("Running Chrome in remote debugger mode, executing command:")
-        print(" ".join(self.command_parts))
+        print("Running Chrome in remote debugger mode")
         print("Saving output to log file: %s" % self.log_file)
         print("")
 

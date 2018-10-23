@@ -7,8 +7,8 @@ class DatabaseJavascript(object):
         c = self.conn.cursor()
         c.execute("""
             SELECT P.exception_id, COUNT(*), E.description
-            FROM pages_js_exceptions AS P
-            JOIN js_exceptions AS E
+            FROM devtools_js_exception AS P
+            JOIN devtools_js_exception_text AS E
                 ON P.exception_id = E.id
             GROUP BY P.exception_id
         """)
@@ -28,7 +28,7 @@ class DatabaseJavascript(object):
         max_occurrences = 10
         c = self.conn.cursor()
         c.execute(
-            "SELECT DISTINCT page_id, exception_id FROM pages_js_exceptions"
+            "SELECT DISTINCT page_id, exception_id FROM devtools_js_exception"
         )
         result = c.fetchall()
         data_dict = {}

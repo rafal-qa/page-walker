@@ -1,7 +1,7 @@
 import sqlite3
 import os
 from pagewalker.utilities import url_utils, time_utils, error_utils
-from .. import version
+from pagewalker import version
 
 
 class DatabaseAdmin(object):
@@ -71,7 +71,7 @@ class DatabaseAdmin(object):
         url = url_utils.relative_url(self.page_start)
         c = self.conn.cursor()
         c.execute(
-            "INSERT INTO pages (parent_id, url, status, file_type) VALUES (?, ?, ?, ?)", (0, url, 0, 0)
+            "INSERT INTO pages (parent_id, url, completion_status, file_type) VALUES (?, ?, ?, ?)", (0, url, 0, 0)
         )
         self.conn.commit()
 
@@ -79,7 +79,7 @@ class DatabaseAdmin(object):
         c = self.conn.cursor()
         for url in self.pages_list:
             c.execute(
-                "INSERT INTO pages (parent_id, url, status, file_type) VALUES (?, ?, ?, ?)", (0, url, 0, 0)
+                "INSERT INTO pages (parent_id, url, completion_status, file_type) VALUES (?, ?, ?, ?)", (0, url, 0, 0)
             )
         self.conn.commit()
 
@@ -105,14 +105,14 @@ class DatabaseAdmin(object):
     def _get_unvisited_pages_count(self):
         c = self.conn.cursor()
         c.execute(
-            "SELECT COUNT(*) FROM pages WHERE status = 0"
+            "SELECT COUNT(*) FROM pages WHERE completion_status = 0"
         )
         return c.fetchone()[0]
 
     def get_next_page(self):
         c = self.conn.cursor()
         c.execute(
-            "SELECT id, url FROM pages WHERE status = 0 ORDER BY id LIMIT 1"
+            "SELECT id, url FROM pages WHERE completion_status = 0 ORDER BY id LIMIT 1"
         )
         record = c.fetchone()
         if not record:

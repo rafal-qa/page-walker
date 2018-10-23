@@ -23,8 +23,8 @@ class HtmlExporter(object):
             "load_time_list": []
         }
         data_pages = []
-        for row in pages_list:
-            single_page = self._single_page_data(row, requests_stats)
+        for page_data in pages_list:
+            single_page = self._single_page_data(page_data, requests_stats)
             self._update_page_counts(counts, single_page)
             data_pages.append(single_page)
 
@@ -38,7 +38,7 @@ class HtmlExporter(object):
 
         data_order = (
             "id", "url", "file_content_type", "file_content_length", "time_load", "http_status", "exception_name",
-            "requests_count", "requests_cached_percent", "data_received_sum"
+            "requests_count", "requests_cached_percent", "data_received_sum", "backlink"
         )
         data_simplified = utils.convert_dict_to_list(data_pages, data_order)
 
@@ -51,41 +51,47 @@ class HtmlExporter(object):
         self.error_counts["pages"] = stat["failed"]
         self.files.save_json(save_data, "pages")
 
-    def _single_page_data(self, row, requests_stats):
-        page_id = row["id"]
+    def _single_page_data(self, page_data, requests_stats):
+        page_id = page_data["id"]
         stats = requests_stats[page_id] if page_id in requests_stats else {}
-        requests_count = stats["requests_count"] if "requests_count" in stats else 0
-        from_cache = stats["from_cache"] if "from_cache" in stats else 0
-        requests_cached_percent = utils.percent(from_cache, requests_count)
-        data_received = stats["data_received"] if "data_received" in stats else 0
-        file_content_length = row["file_content_length"]
+        requests_count = stats["requests_count"] if "requests_count" in stats else None
+        if "from_cache" in stats and stats["from_cache"] is not None:
+            requests_cached_percent = utils.percent(stats["from_cache"], requests_count)
+        else:
+            requests_cached_percent = None
+        if "data_received" in stats:
+            data_received_sum = utils.bytes_to_kilobytes_as_int(stats["data_received"])
+        else:
+            data_received_sum = None
+        file_content_length = page_data["file_content_length"]
         if file_content_length is not None:
             file_content_length = utils.bytes_to_kilobytes_as_int(file_content_length)
-
         return {
             "id": page_id,
-            "url": row["url"],
-            "file_content_type": row["file_content_type"],
+            "url": page_data["url"],
+            "file_content_type": page_data["file_content_type"],
             "file_content_length": file_content_length,
-            "time_load": row["time_load"],
-            "http_status": row["http_status"],
-            "exception_name": row["exception_name"],
+            "time_load": page_data["time_load"],
+            "http_status": page_data["http_status"],
+            "exception_name": page_data["exception_name"],
             "requests_count": requests_count,
             "requests_cached_percent": requests_cached_percent,
-            "data_received_sum": utils.bytes_to_kilobytes_as_int(data_received)
+            "data_received_sum": data_received_sum,
+            "backlink": page_data["backlink"]
         }
 
     def _update_page_counts(self, counts, data):
         if data["file_content_type"]:
             counts["files"] += 1
-        else:
-            counts["pages"] += 1
-            if data["http_status"]:
+            return
+        counts["pages"] += 1
+        if data["http_status"]:
+            if data["requests_count"] is not None:
                 counts["requests_total_list"].append(data["requests_count"])
-                if data["time_load"] is not None:
-                    counts["load_time_list"].append(data["time_load"])
-            if not data["http_status"] or data["http_status"] >= 400:
-                counts["failed"] += 1
+            if data["time_load"] is not None:
+                counts["load_time_list"].append(data["time_load"])
+        if not data["http_status"] or data["http_status"] >= 400:
+            counts["failed"] += 1
 
     def report_resources(self):
         resources_list = self.db.resource_data.resource_list_only()
@@ -334,7 +340,7 @@ class HtmlExporter(object):
     def report_summary(self):
         stat = self.db.general_data.summary()
         stat["unique_errors"] = sum(self.error_counts.values())
-        stat["data_total"] = utils.bytes_to_megabytes_as_string(stat["data_total"])
+        stat["data_total"] = utils.bytes_to_megabytes_as_string(stat["data_total"]) if stat["data_total"] else 0
         save_data = {
             "config": self.db.general_data.config_data(),
             "error": self.error_counts,

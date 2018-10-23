@@ -33,7 +33,7 @@ class ConfigValidator(object):
         if url_utils.has_valid_scheme(value, ["http", "https"]):
             return value
         else:
-            self._error("'%s' is not valid URL" % value, name)
+            self._error("'%s' is not valid URL, it should start with http:// or https://" % value, name)
 
     def dimension(self, value, name=None):
         if re.match(r"^\d+x\d+$", value):

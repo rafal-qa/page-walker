@@ -89,7 +89,7 @@ class HtmlValidator(object):
             message_id = self._get_message_id(log["is_error"], log["description"])
             extract_id = self._get_extract_id(log["extract_json"])
             c.execute(
-                "INSERT INTO pages_validator (page_id, message_id, extract_id, line, html_type) VALUES (?,?,?,?,?)",
+                "INSERT INTO html_validator (page_id, message_id, extract_id, line, html_type) VALUES (?,?,?,?,?)",
                 (log["page_id"], message_id, extract_id, log["line"], log["html_type_id"])
             )
         self.db_conn.commit()
@@ -97,14 +97,14 @@ class HtmlValidator(object):
     def _get_message_id(self, is_error, description):
         c = self.db_conn.cursor()
         c.execute(
-            "SELECT id FROM validator_messages WHERE is_error = ? AND description = ?", (is_error, description)
+            "SELECT id FROM html_validator_message WHERE is_error = ? AND description = ?", (is_error, description)
         )
         result = c.fetchone()
         if result:
             message_id = result[0]
         else:
             c.execute(
-                "INSERT INTO validator_messages (is_error, description) VALUES (?, ?)", (is_error, description)
+                "INSERT INTO html_validator_message (is_error, description) VALUES (?, ?)", (is_error, description)
             )
             message_id = c.lastrowid
         return message_id
@@ -112,14 +112,14 @@ class HtmlValidator(object):
     def _get_extract_id(self, extract_json):
         c = self.db_conn.cursor()
         c.execute(
-            "SELECT id FROM validator_extracts WHERE extract_json = ?", (extract_json,)
+            "SELECT id FROM html_validator_extract WHERE extract_json = ?", (extract_json,)
         )
         result = c.fetchone()
         if result:
             extract_id = result[0]
         else:
             c.execute(
-                "INSERT INTO validator_extracts (extract_json) VALUES (?)", (extract_json,)
+                "INSERT INTO html_validator_extract (extract_json) VALUES (?)", (extract_json,)
             )
             extract_id = c.lastrowid
         return extract_id

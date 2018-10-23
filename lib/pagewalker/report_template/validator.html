@@ -60,6 +60,7 @@
         <ul class="list">
           <li><strong>Occurrences</strong> - How many times this error/warning occurred on all visited pages<br />
           Click error/warning count to open list of example pages on which the error/warning occurred</li>
+          <li><strong>After JavaScript execution</strong> - only errors that have not occurred on <strong>Original HTML</strong> are shown</li>
         </ul>
       </div>
       <div class="ui clearing hidden divider"></div>
@@ -102,8 +103,8 @@
             2-step HTML validation
           </div>
           <ol class="ui list">
-            <li><strong>Raw HTML</strong> - Original page source received from server</li>
-            <li><strong>DOM HTML</strong> - HTML code exported from DOM after JavaScript execution</li>
+            <li><strong>Original HTML</strong> - Raw HTML page source received from server</li>
+            <li><strong>After JavaScript execution</strong> - HTML code exported from DOM</li>
           </ol>
         </div>
       </div>
@@ -112,10 +113,10 @@
 
     <div class="ui tabular menu">
       <a data-tab="raw" class="item">
-        Raw HTML
+        Original HTML
       </a>
       <a data-tab="dom" class="item">
-        DOM HTML
+        After JavaScript execution
       </a>
     </div>
 

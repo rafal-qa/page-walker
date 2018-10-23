@@ -31,11 +31,11 @@ For quick start use [stand-alone version](https://github.com/rafal-qa/page-walke
 ### Prerequisites
 
 * Current Chrome/Chromium browser (or at least version 66) must be installed.
-* For using HTML validator Java 8 (or newer) is required. If you disable HTML validation, it works without Java. Download [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html) or [Java 10](http://www.oracle.com/technetwork/java/javase/downloads/jre10-downloads-4417026.html).
+* For using HTML validator Java 8 (or newer) is required. If you disable HTML validation, it works without Java. [Download Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html).
 
 ### Stand-alone version
 
-You don't need anything else. [Download](https://github.com/rafal-qa/page-walker/releases), unpack and run.
+You don't need anything else. [Download Page Walker](https://github.com/rafal-qa/page-walker/releases), unpack and run.
 
 #### Windows
 
@@ -73,15 +73,15 @@ Page Walker is a cross-platform Python application. You can run it on any system
 * Python modules
   * `requests`
   * `websocket-client`
-* [v.Nu validator](https://github.com/validator/validator/releases) (18.3.0)
+* [v.Nu validator](https://github.com/validator/validator/releases) (18.8.29)
 
 ### Installation
 
-* Install Python modules
+* Install (and upgrade) Python modules
 ```
-pip install --user -r requirements.txt
+pip install --upgrade --user -r requirements.txt
 ```
-* Download [v.Nu validator](https://github.com/validator/validator/releases) `vnu.jar_18.3.0.zip` and unpack to `lib` directory (`lib/vnu/vnu.jar`)
+* Download [v.Nu validator](https://github.com/validator/validator/releases) `vnu.jar_18.8.29.zip` and unpack to `lib` directory (`lib/vnu/vnu.jar`)
 
 ### Running
 

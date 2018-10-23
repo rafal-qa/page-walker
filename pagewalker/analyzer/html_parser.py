@@ -1,5 +1,3 @@
-from pagewalker.utilities import url_utils
-
 try:
     from html.parser import HTMLParser  # Python 3
 except ImportError:
@@ -7,60 +5,31 @@ except ImportError:
 
 
 class MyHtmlParser(HTMLParser):
-    def __init__(self, base_url):
+    def __init__(self):
         HTMLParser.__init__(self)
-        self.base_url = base_url
-        self.base_url_host = url_utils.hostname_from_url(base_url)
         self.base_href = None
         self.all_links = []
 
     def handle_starttag(self, tag, attrs):
         if tag == "a":
-            link = dict(attrs).get("href")
-            if link:
-                self.all_links.append(link.strip())
-        if tag == "base" and not self.base_href:
-            link = dict(attrs).get("href")
-            if link:
-                self.base_href = link.strip()
+            self._handle_a(attrs)
+        if tag == "base":
+            self._handle_base(attrs)
 
-    def get_links(self):
-        links = {
-            "internal": [],
-            "external": []
-        }
-        for link in self._get_unique_links():
-            if self._is_link_valid(link):
-                link_data = self._analyze_link(link)
-                link_type = link_data["type"]
-                links[link_type].append(link_data["link"])
-        return links
+    def _handle_a(self, attrs):
+        link = dict(attrs).get("href")
+        if link:
+            self.all_links.append(link.strip())
 
-    def _get_unique_links(self):
-        no_hash = [link.split("#")[0] for link in self.all_links]
-        return set(no_hash)
-
-    def _is_link_valid(self, link):
-        if not link or link == "/":
-            return False
-        if link.startswith(("mailto:", "tel:")):
-            return False
-        if not url_utils.has_valid_scheme(link, ["", "http", "https"]):
-            return False
-        return True
-
-    def _analyze_link(self, link):
+    def _handle_base(self, attrs):
         if self.base_href:
-            link = url_utils.make_absolute_url(self.base_href, link)
-        link_host = url_utils.hostname_from_url(link)
-        if not link_host or link_host == self.base_url_host:
-            link_type = "internal"
-            link = url_utils.make_absolute_url(self.base_url, link)
-            link = url_utils.relative_url(link)
-        else:
-            link_type = "external"
+            return
+        link = dict(attrs).get("href")
+        if link:
+            self.base_href = link.strip()
 
-        return {
-            "type": link_type,
-            "link": link
-        }
+    def get_found_links(self):
+        return self.all_links
+
+    def get_base_href(self):
+        return self.base_href

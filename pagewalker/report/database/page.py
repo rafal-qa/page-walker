@@ -6,27 +6,27 @@ class DatabasePage(object):
     def pages_list_with_data(self):
         c = self.conn.cursor()
         c.execute("""
-            SELECT P.id, P.url, S.time_load, S.file_content_length, R.http_status, F.content_type, E.name
+            SELECT P.id, P.parent_id, P.url, P.http_status, S.time_load, S.file_content_length, F.content_type, E.name
             FROM pages AS P
-            LEFT JOIN pages_stats AS S
+            LEFT JOIN pages_stat AS S
                 ON P.id = S.page_id
-            LEFT JOIN requests AS R
-                ON P.id = R.page_id AND R.is_main = 1
-            LEFT JOIN file_types AS F
+            LEFT JOIN pages_file_type AS F
                 ON P.file_type = F.id
-            LEFT JOIN connection_exceptions AS E
+            LEFT JOIN pages_connection_exception AS E
                 ON P.exception_id = E.id
-            WHERE P.status > 0
+            WHERE P.completion_status > 0
         """)
         result = c.fetchall()
         data_pages = []
         for row in result:
-            page_id, url, time_load, file_content_length, http_status, file_content_type, exception_name = row
+            page_id, parent_id, url, http_status, time_load, file_content_length, file_content_type, exception_name \
+                = row
             page_data = {
                 "id": page_id,
+                "backlink": parent_id,
                 "url": url,
-                "time_load": time_load,
                 "http_status": http_status,
+                "time_load": time_load,
                 "exception_name": exception_name,
                 "file_content_type": file_content_type,
                 "file_content_length": file_content_length
@@ -47,7 +47,7 @@ class DatabasePage(object):
         c = self.conn.cursor()
         c.execute("""
             SELECT page_id, COUNT(*), SUM(from_cache)
-            FROM requests
+            FROM devtools_request
             GROUP BY page_id
         """)
         result = c.fetchall()
@@ -65,7 +65,7 @@ class DatabasePage(object):
         c = self.conn.cursor()
         c.execute("""
             SELECT page_id, SUM(data_received)
-            FROM requests
+            FROM devtools_request
             WHERE from_cache = 0
             GROUP BY page_id
         """)

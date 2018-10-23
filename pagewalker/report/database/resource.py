@@ -7,8 +7,8 @@ class DatabaseResource(object):
         c = self.conn.cursor()
         c.execute("""
             SELECT DISTINCT RS.id, RS.url, RS.is_truncated, RS.is_external
-            FROM requests AS RQ
-            JOIN resources AS RS
+            FROM devtools_request AS RQ
+            JOIN devtools_resource AS RS
                 ON RQ.resource_id = RS.id
             WHERE RQ.is_main = 0
         """)
@@ -51,7 +51,7 @@ class DatabaseResource(object):
         c = self.conn.cursor()
         c.execute("""
              SELECT resource_id, COUNT(*), SUM(from_cache)
-             FROM requests
+             FROM devtools_request
              WHERE is_main = 0 AND http_status IS NOT NULL
              GROUP BY resource_id
          """)
@@ -71,7 +71,7 @@ class DatabaseResource(object):
         c = self.conn.cursor()
         c.execute("""
              SELECT resource_id, AVG(data_received), AVG(time_load)
-             FROM requests
+             FROM devtools_request
              WHERE is_main = 0 AND http_status IS NOT NULL AND from_cache = 0
              GROUP BY resource_id
          """)
@@ -89,7 +89,7 @@ class DatabaseResource(object):
         c = self.conn.cursor()
         c.execute("""
              SELECT resource_id, COUNT(*)
-             FROM requests
+             FROM devtools_request
              WHERE is_main = 0 AND http_status IS NULL
              GROUP BY resource_id
          """)
@@ -104,8 +104,8 @@ class DatabaseResource(object):
         c = self.conn.cursor()
         c.execute("""
              SELECT R.page_id, R.resource_id, R.http_status, E.name
-             FROM requests AS R
-             LEFT JOIN requests_error AS E
+             FROM devtools_request AS R
+             LEFT JOIN devtools_request_error AS E
                 ON E.id = R.error_id
              WHERE R.is_main = 0 AND (R.http_status >= 400 OR R.http_status = 0)
          """)
