@@ -12,15 +12,17 @@ class Report(object):
         html_report.report_pages()
         html_report.report_resources()
         html_report.report_javascript()
+        html_report.report_console()
+        html_report.report_links()
         html_report.report_validator()
-        html_report.report_devtools()
         html_report.report_summary()
         html_report.close_db()
         self._print_confirm()
 
     def _print_confirm(self):
+        print("")
         print("-" * 50)
-        print("HTML report saved to '%s' directory" % self.current_data_dir)
+        print("HTML report was saved to: %s" % path.join(self.current_data_dir, "report", "index.html"))
         print("-" * 50)
 
     def redirect_to_latest(self, output_data, current_subdir):

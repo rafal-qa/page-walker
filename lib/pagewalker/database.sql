@@ -94,7 +94,22 @@ CREATE TABLE devtools_request_error (
 	name text
 );
 
-CREATE TABLE pages_connection_exception (
+CREATE TABLE connection_exception (
 	id integer PRIMARY KEY AUTOINCREMENT,
 	name string
+);
+
+CREATE TABLE external_links (
+	id integer PRIMARY KEY AUTOINCREMENT,
+	page_id integer,
+	link_id integer
+);
+
+CREATE TABLE external_links_url (
+	id integer PRIMARY KEY AUTOINCREMENT,
+	url text,
+	checked integer,
+	redirect_url text,
+	http_status integer,
+	exception_name text
 );

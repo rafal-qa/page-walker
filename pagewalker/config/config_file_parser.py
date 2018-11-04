@@ -22,7 +22,8 @@ class ConfigFileParser(object):
                 "start_url"
             ],
             "positive_non_zero_integer": [
-                "max_number_pages", "chrome_debugging_port", "chrome_timeout", "java_stack_size"
+                "max_number_pages", "chrome_debugging_port", "chrome_timeout", "java_stack_size",
+                "check_external_links_timeout"
             ],
             "positive_integer": [
                 "wait_time_after_load"
@@ -30,7 +31,7 @@ class ConfigFileParser(object):
             "boolean": [
                 "scroll_after_load", "keep_previous_data", "chrome_headless", "chrome_close_on_finish",
                 "chrome_ignore_cert", "validator_enabled", "validator_check_css", "validator_show_warnings",
-                "pages_list_only"
+                "pages_list_only", "check_external_links"
             ],
             "dimension": [
                 "window_size"

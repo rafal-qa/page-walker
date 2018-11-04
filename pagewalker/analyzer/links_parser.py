@@ -2,14 +2,14 @@ from pagewalker.utilities import url_utils
 
 
 class LinksParser(object):
-    def __init__(self, base_url, base_href=None):
+    def __init__(self, base_url, base_href_tag=None):
         self.base_url = base_url
-        self.base_href = base_href
+        self.base_href_tag = base_href_tag
 
-    def get_internal_relative(self, all_links):
+    def filter_internal_relative(self, all_links):
         return self._filter_links_by_type(all_links, "internal")
 
-    def get_external(self, all_links):
+    def filter_external(self, all_links):
         return self._filter_links_by_type(all_links, "external")
 
     def _filter_links_by_type(self, all_links, link_type):
@@ -41,10 +41,11 @@ class LinksParser(object):
         return True
 
     def _analyze(self, link):
-        base_url_host = url_utils.hostname_from_url(self.base_url)
-        if self.base_href:
-            link = url_utils.make_absolute_url(self.base_href, link)
+        link = url_utils.prepend_missing_scheme(link, self.base_url)
+        if self.base_href_tag:
+            link = url_utils.make_absolute_url(self.base_href_tag, link)
         link_host = url_utils.hostname_from_url(link)
+        base_url_host = url_utils.hostname_from_url(self.base_url)
         if not link_host or link_host == base_url_host:
             link = url_utils.make_absolute_url(self.base_url, link)
             link = url_utils.relative_url(link)

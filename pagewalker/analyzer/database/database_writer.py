@@ -37,13 +37,13 @@ class DatabasePageWriter(object):
     def _get_connection_exception_id(self, error_name):
         c = self.conn.cursor()
         c.execute(
-            "SELECT id FROM pages_connection_exception WHERE name = ?", (error_name,)
+            "SELECT id FROM connection_exception WHERE name = ?", (error_name,)
         )
         result = c.fetchone()
         if result:
             return result[0]
         c.execute(
-            "INSERT INTO pages_connection_exception (name) VALUES (?)", (error_name,)
+            "INSERT INTO connection_exception (name) VALUES (?)", (error_name,)
         )
         return c.lastrowid
 
@@ -72,20 +72,20 @@ class DatabasePageWriter(object):
         return c.lastrowid
 
     def add_internal_links(self, relative_links):
-        for link in relative_links:
-            self._add_page_if_not_exists(link)
+        for url in relative_links:
+            self._add_page_if_not_exists(url)
 
-    def _add_page_if_not_exists(self, link):
+    def _add_page_if_not_exists(self, url):
         c = self.conn.cursor()
         c.execute(
-            "SELECT COUNT(*) FROM pages WHERE url = ?", (link,)
+            "SELECT COUNT(*) FROM pages WHERE url = ?", (url,)
         )
         count = c.fetchone()[0]
         if count == 0:
             parent_id = self.page_id
             c.execute(
                 "INSERT INTO pages (parent_id, url, completion_status, file_type) VALUES (?,?,?,?)",
-                (parent_id, link, 0, 0)
+                (parent_id, url, 0, 0)
             )
             self.conn.commit()
 

@@ -47,6 +47,10 @@ parser.add_argument("--check-css", help="Check also CSS if HTML validator is ena
 parser.add_argument("--validator-warnings", help="Report also warnings if HTML validator is enabled (yes/no)",
                     type=argparse_types.boolean)
 parser.add_argument("--java-binary", help="Path to Java executable file")
+parser.add_argument("--check-links", help="Check external links (yes/no)",
+                    type=argparse_types.boolean)
+parser.add_argument("--check-links-timeout", help="Connection timeout in seconds",
+                    type=argparse_types.positive_non_zero_integer)
 parser.add_argument("-v", "--version", help="Show Page Walker and Python version", action='store_true')
 args = parser.parse_args()
 
@@ -92,6 +96,10 @@ if args.validator_warnings is not None:
     main_config["validator_show_warnings"] = args.validator_warnings
 if args.java_binary is not None:
     main_config["java_binary"] = args.java_binary
+if args.check_links is not None:
+    main_config["check_external_links"] = args.check_links
+if args.check_links_timeout is not None:
+    main_config["check_external_links_timeout"] = args.check_links_timeout
 
 if main_config["validator_enabled"]:
     check_java = java_checker.JavaChecker(main_config["java_binary"])

@@ -37,6 +37,8 @@ main_config = {
     "validator_vnu_jar": path.join("lib", "vnu", "vnu.jar"),
     "java_binary": java_binary,
     "java_stack_size": 4096,
+    "check_external_links": True,
+    "check_external_links_timeout": 10,
     "output_data": "output",
     "current_data_dir": None,
     "sqlite_file": None

@@ -12,12 +12,12 @@ class HTTPHeadersAnalyzer(object):
         self.r = None
 
     def analyze_for_chrome(self, url):
-        request_result = self._head_request(url)
-        if request_result is not True:
+        request_success, exception_type = self._http_get_only_headers(url, False)
+        if not request_success:
             return {
                 "status": "request_exception",
                 "http_code": None,
-                "error_name": request_result
+                "error_name": exception_type
             }
         if self.r.is_redirect:
             return {
@@ -43,9 +43,9 @@ class HTTPHeadersAnalyzer(object):
         }
 
     def check_200_ok_html(self, url):
-        request_result = self._head_request(url)
-        if request_result is not True:
-            error_utils.exit_with_message("Start URL %s" % request_result)
+        request_success, exception_type = self._http_get_only_headers(url, False)
+        if not request_success:
+            error_utils.exit_with_message("Start URL %s" % exception_type)
         if self.r.is_redirect:
             msg = "Start URL %s redirects to %s" % (url, self.r.headers["Location"])
             msg += "\nPlease provide non-redirecting URL"
@@ -55,13 +55,30 @@ class HTTPHeadersAnalyzer(object):
         if not self._is_http():
             error_utils.exit_with_message("Start URL is not HTML page")
 
-    def _head_request(self, url):
+    def analyze_for_external_links_check(self, url):
+        request_success, exception_name = self._http_get_only_headers(url, True)
+        if not request_success:
+            return {
+                "redirect_url": None,
+                "http_code": None,
+                "error_name": exception_name
+            }
+        return {
+            "redirect_url": self._redirect_url(),
+            "http_code": self.r.status_code,
+            "error_name": None
+        }
+
+    def _http_get_only_headers(self, url, allow_redirects):
         headers = {"user-agent": "Mozilla/5.0 AppleWebKit/537.36 Chrome/66.0.3359.181"}
+        hooks = {"response": lambda response, *args, **kwargs: response.close()}
         try:
-            self.r = requests.head(url, headers=headers, timeout=self.timeout, allow_redirects=False, verify=False)
-            return True
+            self.r = requests.get(
+                url, headers=headers, hooks=hooks, timeout=self.timeout, allow_redirects=allow_redirects, verify=False
+            )
+            return True, None
         except RequestException as e:
-            return type(e).__name__
+            return False, type(e).__name__
 
     def _content_type(self):
         return self.r.headers["Content-Type"] if "Content-Type" in self.r.headers else None
@@ -74,3 +91,6 @@ class HTTPHeadersAnalyzer(object):
 
     def _is_http(self):
         return "Content-Type" in self.r.headers and self.r.headers["Content-Type"].startswith("text/html")
+
+    def _redirect_url(self):
+        return self.r.url if self.r.history else None

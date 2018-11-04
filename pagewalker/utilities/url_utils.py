@@ -12,6 +12,15 @@ def hostname_from_url(url):
         return None
 
 
+# Link format: //example.com
+def prepend_missing_scheme(url, base_url):
+    url_parts = urlsplit(url)
+    if url_parts.netloc and not url_parts.scheme:
+        return urlsplit(base_url).scheme + ":" + url
+    else:
+        return url
+
+
 def relative_url(url):
     url_parts = urlsplit(url)
     link_relative = url_parts.path

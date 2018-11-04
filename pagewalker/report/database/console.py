@@ -1,5 +1,5 @@
 
-class DatabaseDevtools(object):
+class DatabaseConsole(object):
     def __init__(self, conn):
         self.conn = conn
 
@@ -26,8 +26,8 @@ class DatabaseDevtools(object):
             data_logs.append(log_data)
         return data_logs
 
-    def pages_for_log(self):
-        max_occurrences = 10
+    def pages_with_log(self):
+        max_pages_on_list = 10
         c = self.conn.cursor()
         c.execute(
             "SELECT DISTINCT page_id, log_id FROM devtools_console ORDER BY page_id"
@@ -38,6 +38,6 @@ class DatabaseDevtools(object):
             page_id, log_id = row
             if log_id not in data_logs:
                 data_logs[log_id] = []
-            if len(data_logs[log_id]) < max_occurrences:
+            if len(data_logs[log_id]) < max_pages_on_list:
                 data_logs[log_id].append(page_id)
         return data_logs

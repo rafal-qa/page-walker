@@ -12,7 +12,7 @@ class DatabasePage(object):
                 ON P.id = S.page_id
             LEFT JOIN pages_file_type AS F
                 ON P.file_type = F.id
-            LEFT JOIN pages_connection_exception AS E
+            LEFT JOIN connection_exception AS E
                 ON P.exception_id = E.id
             WHERE P.completion_status > 0
         """)

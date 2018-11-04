@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>DevTools logs</title>
+  <title>External links</title>
 
   <!-- libraries -->
   <link rel="stylesheet" type="text/css" href="lib/semantic_custom.min.css">
@@ -17,27 +17,28 @@
   <!-- data -->
   <script src="data/summary.js"></script>
   <script src="data/pages.js"></script>
-  <script src="data/devtools.js"></script>
+  <script src="data/links.js"></script>
   <!-- report -->
   <link rel="stylesheet" type="text/css" href="lib/custom.css">
   <script type="text/javascript">
-    var _report_ = 'devtools';
+    var _report_ = 'links';
   </script>
   <script src="js/data_parser.js"></script>
   <script src="js/report.js"></script>
-  <script src="js/reports/devtools.js"></script>
+  <script src="js/reports/links.js"></script>
   <script src="js/init.js"></script>
 
 </head>
 <body>
 
-  <div id="main-menu" class="ui stackable six item menu">
+  <div id="main-menu" class="ui stackable seven item menu">
     <a href="index.html" data-report="summary" class="item">Summary</a>
-    <a href="pages.html" data-report="pages" class="item">Pages list <span class="ui basic label">&nbsp;</span></a>
+    <a href="pages.html" data-report="pages" class="item">Pages <span class="ui basic label">&nbsp;</span></a>
     <a href="resources.html" data-report="resources" class="item">Resources <span class="ui basic label">&nbsp;</span></a>
     <a href="javascript.html" data-report="javascript" class="item">JavaScript <span class="ui basic label">&nbsp;</span></a>
-    <a href="devtools.html" data-report="devtools" class="item">DevTools logs <span class="ui basic label">&nbsp;</span></a>
-    <a href="validator.html" data-report="validator" class="item">HTML validator <span class="ui basic label">&nbsp;</span></a>
+    <a href="console.html" data-report="console" class="item">Console <span class="ui basic label">&nbsp;</span></a>
+    <a href="links.html" data-report="links" class="item">Links <span class="ui basic label">&nbsp;</span></a>
+    <a href="validator.html" data-report="validator" class="item">Validator <span class="ui basic label">&nbsp;</span></a>
   </div>
 
   <div class="ui container">
@@ -55,18 +56,22 @@
       <div class="ui info message">
         <i class="close icon"></i>
         <div class="header">
-          Logs from DevTools Console
+          External links checking
         </div>
         <ul class="list">
-          <li><strong>Occurrences</strong> - How many times this event occurred on all visited pages<br />
-          Click event count to open list of example pages on which the event occurred</li>
+          <li><strong>Link</strong> - Link found on tested website</li>
+          <li><strong>Redirects to</strong> - If the link redirects to another URL, this is the final location</li>
+          <li><strong>Status</strong> - HTTP response code or error name if response is not available<br />
+            If there is a redirection, the status of the final URL ("Redirects to" column)</li>
+          <li><strong>On pages</strong> - Number of pages on which this link was found<br />
+            Click number to open list of example pages</li>
         </ul>
       </div>
       <div class="ui clearing hidden divider"></div>
     </div>
 
     <div id="stats-main" class="ui small statistics">
-      <div class="statistic stats-error">
+      <div class="statistic stats-failed">
         <div class="value">
           --
         </div>
@@ -74,30 +79,30 @@
           errors
         </div>
       </div>
-      <div class="statistic stats-warning">
+      <div class="statistic stats-redirect">
         <div class="value">
           --
         </div>
         <div class="label">
-          warnings
+          with redirect
         </div>
       </div>
     </div>
 
     <div class="ui tabular menu">
-      <a data-tab="devtools" class="item active">
-        Logs list
+      <a data-tab="links" class="item">
+        External links
       </a>
     </div>
 
-    <div class="table-wrapper report-devtools hidden">
+    <div class="table-wrapper report-links">
       <table class="ui selectable celled unstackable table">
         <thead>
           <tr>
-            <th>Message</th>
-            <th>Occurrences</th>
-            <th>Level</th>
-            <th>Source</th>
+            <th>Link</th>
+            <th>Redirects to</th>
+            <th>Status</th>
+            <th>On pages</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -109,18 +114,16 @@
   <div id="details-modal" class="ui modal">
     <i class="close icon"></i>
     <div class="header">
-      DevTools logs
+      External link
     </div>
     <div class="content">
       <div class="description">
-        <div class="description">
-          <div class="ui message devtools-message"></div>
-        </div>
+        <div class="ui message"></div>
       </div>
       <table class="ui selectable celled table">
         <thead>
           <tr>
-            <th>Appeared on page</th>
+            <th>Link found on pages</th>
           </tr>
         </thead>
         <tbody></tbody>

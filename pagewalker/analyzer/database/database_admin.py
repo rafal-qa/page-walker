@@ -114,11 +114,10 @@ class DatabaseAdmin(object):
         c.execute(
             "SELECT id, url FROM pages WHERE completion_status = 0 ORDER BY id LIMIT 1"
         )
-        record = c.fetchone()
-        if not record:
+        result = c.fetchone()
+        if not result:
             return False
-
-        page_id, relative_url = record
+        page_id, relative_url = result
         absolute_url = self.page_host + relative_url
         return {
             "id": page_id,

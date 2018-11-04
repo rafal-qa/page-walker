@@ -216,26 +216,26 @@ class HtmlExporter(object):
         self.error_counts["javascript"] = stat["exception"]
         self.files.save_json(save_data, "javascript")
 
-    def report_devtools(self):
-        logs = self.db.devtools_data.log_list()
-        pages = self.db.devtools_data.pages_for_log()
+    def report_console(self):
+        logs = self.db.console_data.log_list()
+        pages_with_log = self.db.console_data.pages_with_log()
         counts = {
             "error_sum": 0,
             "warning_sum": 0
         }
-        data_devtools = []
+        data_console = []
         for log in logs:
             log_id = log["id"]
             level_id = log["level_id"]
-            single_devtools = {
+            single_console_log = {
                 "id": log_id,
                 "occurrences": log["occurrences"],
                 "level_id": level_id,
                 "source_id": log["source_id"],
                 "description": log["description"],
-                "pages_with_log": pages[log_id] if log_id in pages else None
+                "pages_with_log": pages_with_log[log_id] if log_id in pages_with_log else None
             }
-            data_devtools.append(single_devtools)
+            data_console.append(single_console_log)
 
             if level_id == 4:
                 counts["error_sum"] += 1
@@ -248,7 +248,7 @@ class HtmlExporter(object):
         }
 
         data_order = ("id", "occurrences", "level_id", "source_id", "description", "pages_with_log")
-        data_simplified = utils.convert_dict_to_list(data_devtools, data_order)
+        data_simplified = utils.convert_dict_to_list(data_console, data_order)
 
         save_data = {
             "head": data_order,
@@ -256,8 +256,39 @@ class HtmlExporter(object):
             "stat": stat
         }
 
-        self.error_counts["devtools"] = stat["error"]
-        self.files.save_json(save_data, "devtools")
+        self.error_counts["console"] = stat["error"]
+        self.files.save_json(save_data, "console")
+
+    def report_links(self):
+        links = self.db.links_data.link_list()
+        pages_with_link = self.db.links_data.pages_with_link()
+        counts = {
+            "failed_sum": 0,
+            "redirect_sum": 0
+        }
+        data_links = []
+        for single_link_data in links:
+            link_id = single_link_data["id"]
+            single_link_data["pages_with_link"] = pages_with_link[link_id] if link_id in pages_with_link else None
+            data_links.append(single_link_data)
+            has_error_code = single_link_data["http_status"] and single_link_data["http_status"] >= 400
+            if has_error_code or single_link_data["exception_name"]:
+                counts["failed_sum"] += 1
+            if single_link_data["redirect_url"]:
+                counts["redirect_sum"] += 1
+
+        data_order = ("id", "occurrences", "url", "redirect_url", "http_status", "exception_name", "pages_with_link")
+        data_simplified = utils.convert_dict_to_list(data_links, data_order)
+        save_data = {
+            "head": data_order,
+            "main": data_simplified,
+            "stat": {
+                "failed": counts["failed_sum"],
+                "redirect": counts["redirect_sum"]
+            }
+        }
+        self.error_counts["links"] = counts["failed_sum"]
+        self.files.save_json(save_data, "links")
 
     def report_validator(self):
         html_raw_list = self.db.validator_data.messages(1)
