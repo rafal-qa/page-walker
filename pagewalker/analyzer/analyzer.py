@@ -1,66 +1,15 @@
-from os import path
 from .devtools import remote_debug, response_parser
 from .database import database_admin, database_writer
 from . import html_parser, links_parser, external_links, html_validator, http_headers_analyzer
+from pagewalker.config import config
 
 
 class Analyzer(object):
-    def __init__(self, config):
-        self.max_number_pages = config["max_number_pages"]
-        self.pages_list_file = config["pages_list_file"]
-        self.pages_list_only = config["pages_list_only"]
-        self.wait_time_after_load = config["wait_time_after_load"]
-        self.scroll_after_load = config["scroll_after_load"]
-        self.timeout = config["chrome_timeout"]
-
-        chrome_dir_with_port = path.join(config["chrome_data_dir"], "port_%s" % config["chrome_debugging_port"])
-        self.devtools_remote = remote_debug.DevtoolsRemoteDebug(
-            config["chrome_headless"],
-            config["chrome_close_on_finish"],
-            config["chrome_debugging_port"],
-            chrome_dir_with_port,
-            config["chrome_timeout"],
-            config["window_size"],
-            config["chrome_binary"],
-            config["chrome_ignore_cert"],
-            config["current_data_dir"]
-        )
-
-        validator_dir_with_port = path.join(config["validator_html_dir"], "port_%s" % config["chrome_debugging_port"])
-        self.validator = html_validator.HtmlValidator(
-            config["validator_enabled"],
-            config["validator_vnu_jar"],
-            validator_dir_with_port,
-            config["validator_check_css"],
-            config["validator_show_warnings"],
-            config["java_binary"],
-            config["java_stack_size"]
-        )
-
-        config_to_save = {
-            "wait_time_after_load": self.wait_time_after_load,
-            "max_number_pages": self.max_number_pages,
-            "window_size": config["window_size"],
-            "headless": "Yes" if config["chrome_headless"] else "No",
-            "chrome_timeout": config["chrome_timeout"],
-            "validator_enabled": "Yes" if config["validator_enabled"] else "No",
-            "validator_css": "Yes" if config["validator_check_css"] else "No",
-            "validator_warnings": "Yes" if config["validator_show_warnings"] else "No",
-            "scroll_after_load": "Yes" if self.scroll_after_load else "No",
-            "check_external_links": "Yes" if config["check_external_links"] else "No",
-            "check_external_links_timeout": config["check_external_links_timeout"]
-        }
-        self.db_admin = database_admin.DatabaseAdmin(
-            config["start_url"],
-            config["sqlite_file"],
-            self.pages_list_file,
-            config_to_save
-        )
-
-        self.external_links = external_links.ExternalLinks(
-            config["check_external_links"],
-            config["check_external_links_timeout"]
-        )
+    def __init__(self):
+        self.devtools_remote = remote_debug.DevtoolsRemoteDebug()
+        self.validator = html_validator.HtmlValidator()
+        self.db_admin = database_admin.DatabaseAdmin()
+        self.external_links = external_links.ExternalLinks()
 
     def start_new_analysis(self):
         db_admin = self.db_admin
@@ -74,10 +23,12 @@ class Analyzer(object):
         self._save_chrome_version(db_admin, devtools_remote)
         db_admin.add_to_config("vnu_version", self.validator.get_vnu_version())
 
-        if self.pages_list_file and self.pages_list_only:
-            self.max_number_pages = db_admin.get_pages_list_count() + 1
+        if config.pages_list_file and config.pages_list_only:
+            max_number_pages = db_admin.get_pages_list_count() + 1
+        else:
+            max_number_pages = config.max_number_pages
 
-        for i in range(0, self.max_number_pages):
+        for i in range(0, max_number_pages):
             next_page = db_admin.get_next_page()
             if not next_page:
                 break
@@ -111,10 +62,10 @@ class Analyzer(object):
         devtools_parser = response_parser.DevtoolsResponseParser()
         devtools_parser.append_response(messages)
 
-        if self.scroll_after_load:
+        if config.scroll_after_load:
             devtools_remote.scroll_to_bottom()
 
-        messages = devtools_remote.wait(self.wait_time_after_load)
+        messages = devtools_remote.wait(config.wait_time_after_load)
         devtools_parser.append_response(messages)
 
         parsed_logs = devtools_parser.get_logs()
@@ -129,7 +80,7 @@ class Analyzer(object):
         db_page_writer.completion_status_finished()
 
     def _headers_analysis_before_chrome(self, db_writer, url):
-        http_headers = http_headers_analyzer.HTTPHeadersAnalyzer(self.timeout)
+        http_headers = http_headers_analyzer.HTTPHeadersAnalyzer(config.chrome_timeout)
         url_result = http_headers.analyze_for_chrome(url)
         status = url_result["status"]
         if status == "ok":

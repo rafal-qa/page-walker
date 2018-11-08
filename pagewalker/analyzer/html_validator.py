@@ -1,31 +1,36 @@
 import json
 import re
 import os
+from os import path
 from subprocess import Popen, PIPE
 from pagewalker.utilities import filesystem_utils, error_utils
+from pagewalker.config import config
 
 
 class HtmlValidator(object):
-    def __init__(self, enabled, jar, html_dir, check_css, show_warnings, java_binary, java_stack):
-        self.enabled = enabled
-        self.jar = jar
-        self.html_dir = html_dir
-        self.java = java_binary
+    def __init__(self):
+        subdir = "port_%s" % config.chrome_debugging_port
+        self.html_dir = path.join(config.validator_html_dir, subdir)
         self.db_conn = None
         self.queue_current_size = 0
         self.queue_max_size = 40
         self.vnu_version = ""
 
-        if not self.enabled:
+        if not config.validator_enabled:
             return
 
         self.vnu_version = self._check_vnu()
 
-        stack_size = "-Xss%sk" % java_stack
-        command_parts = [self.java, stack_size, "-jar", self.jar, "--format", "json", "--exit-zero-always"]
-        if check_css:
+        stack_size = "-Xss%sk" % config.java_stack_size
+        command_parts = [
+            config.java_binary, stack_size,
+            "-jar", config.validator_vnu_jar,
+            "--format", "json",
+            "--exit-zero-always"
+        ]
+        if config.validator_check_css:
             command_parts.append("--also-check-css")
-        if not show_warnings:
+        if not config.validator_show_warnings:
             command_parts.append("--errors-only")
         command_parts.append(self.html_dir)
         self.vnu_command_parts = command_parts
@@ -33,7 +38,11 @@ class HtmlValidator(object):
         filesystem_utils.clean_directory(self.html_dir)
 
     def _check_vnu(self):
-        command_parts = [self.java, "-jar", self.jar, "--version"]
+        command_parts = [
+            config.java_binary,
+            "-jar", config.validator_vnu_jar,
+            "--version"
+        ]
         p = Popen(command_parts, stdout=PIPE, stderr=PIPE)
         (out, err) = p.communicate()
         if p.returncode == 0:
@@ -45,7 +54,7 @@ class HtmlValidator(object):
         self.db_conn = db_connection
 
     def add_to_queue(self, page_id, html_raw, html_dom):
-        if not self.enabled:
+        if not config.validator_enabled:
             return
         self._save_html_to_file(page_id, "raw", html_raw)
         self._save_html_to_file(page_id, "dom", html_dom)
@@ -56,7 +65,7 @@ class HtmlValidator(object):
             self.validate()
 
     def validate(self):
-        if not self.enabled:
+        if not config.validator_enabled:
             return
         logs = self._execute_vnu()
         self._save_result_to_database(logs)

@@ -1,10 +1,9 @@
 from . import http_headers_analyzer
+from pagewalker.config import config
 
 
 class ExternalLinks(object):
-    def __init__(self, enabled, timeout):
-        self.enabled = enabled
-        self.timeout = timeout
+    def __init__(self):
         self.db_conn = None
 
     def set_db_connection(self, db_connection):
@@ -36,7 +35,7 @@ class ExternalLinks(object):
         return c.lastrowid
 
     def check_links(self):
-        if not self.enabled:
+        if not config.check_external_links:
             return
         links = self._get_unchecked_links()
         unchecked_count = len(links)
@@ -44,7 +43,7 @@ class ExternalLinks(object):
             return
         word_link = "link" if unchecked_count == 1 else "links"
         print("[INFO] Checking %s new external %s" % (unchecked_count, word_link))
-        http_headers = http_headers_analyzer.HTTPHeadersAnalyzer(self.timeout)
+        http_headers = http_headers_analyzer.HTTPHeadersAnalyzer(config.check_external_links_timeout)
         for link_data in links:
             result = http_headers.analyze_for_external_links_check(link_data["url"])
             self._set_link_status(link_data["id"], result["redirect_url"], result["http_code"], result["error_name"])

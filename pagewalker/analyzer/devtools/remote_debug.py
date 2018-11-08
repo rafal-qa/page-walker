@@ -2,29 +2,28 @@ from os import path
 from subprocess import Popen
 from . import socket
 from pagewalker.utilities import filesystem_utils, error_utils
+from pagewalker.config import config
 
 
 class DevtoolsRemoteDebug(object):
-    def __init__(self, headless, close_on_finish, debugging_port, profile_dir, chrome_timeout, window_size,
-                 chrome_binary, ignore_cert, current_data_dir):
-        self.headless = headless
-        self.close_on_finish = close_on_finish
-        self.profile_dir = profile_dir
-        self.log_file = path.join(current_data_dir, "chrome_run.log")
-        self.chrome = chrome_binary
-        self.debugger_socket = socket.DevtoolsSocket(debugging_port, chrome_timeout)
+    def __init__(self):
+        subdir = "port_%s" % config.chrome_debugging_port
+        self.profile_dir = path.join(config.chrome_data_dir, subdir)
+        self.log_file = path.join(config.current_data_dir, "chrome_run.log")
+        self.debugger_socket = socket.DevtoolsSocket()
 
+        window_size_command = config.window_size.replace("x", ",")
         command_parts = [
-            self.chrome,
-            "--remote-debugging-port=%s" % debugging_port,
-            "--window-size=%s" % window_size.replace("x", ","),
+            config.chrome_binary,
+            "--remote-debugging-port=%s" % config.chrome_debugging_port,
+            "--window-size=%s" % window_size_command,
             "--no-first-run",
-            "--user-data-dir=%s" % profile_dir
+            "--user-data-dir=%s" % self.profile_dir
         ]
-        if headless:
+        if config.chrome_headless:
             command_parts.append("--headless")
             command_parts.append("--disable-gpu")
-        if ignore_cert:
+        if config.chrome_ignore_cert:
             command_parts.append("--ignore-certificate-errors")
 
         self.command_parts = command_parts
@@ -36,9 +35,9 @@ class DevtoolsRemoteDebug(object):
         try:
             Popen(self.command_parts, stdout=chrome_log, stderr=chrome_log)
         except OSError:
-            message = "Chrome not found at location: %s" % self.chrome
+            message = "Chrome not found at location: %s" % config.chrome_binary
             message += "\nFind location of Chrome/Chromium in your system and configure it in:"
-            message += "\n* config/default.ini file (option: chrome_binary)"
+            message += "\n* %s file (option: chrome_binary)" % config.ini_file
             message += "\n* or command line parameter --chrome-binary"
             error_utils.exit_with_message(message)
         self._print_start_message()
@@ -61,7 +60,7 @@ class DevtoolsRemoteDebug(object):
 
     def end_session(self):
         self.debugger_socket.close_page_connection()
-        if self.headless or self.close_on_finish:
+        if config.chrome_headless or config.chrome_close_on_finish:
             self.debugger_socket.send_browser_close()
 
     def open_url(self, url):

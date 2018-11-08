@@ -5,17 +5,18 @@ except ImportError:
     import ConfigParser as configparser
 from . import config_validator
 from pagewalker.utilities import error_utils
+from pagewalker.config import config
 
 
 class ConfigFileParser(object):
-    def __init__(self, file_name):
-        if not os.path.isfile(file_name):
-            error_utils.exit_with_message("Config file '%s' not found" % file_name)
+    def __init__(self):
+        if not os.path.isfile(config.ini_file):
+            error_utils.exit_with_message("Config file '%s' not found" % config.ini_file)
         parser = configparser.ConfigParser()
-        parser.read(file_name)
+        parser.read(config.ini_file)
         self.parser = parser
 
-    def apply_config(self, config):
+    def apply(self):
         config_types = config_validator.ConfigValidator("config")
         validate = {
             "url": [
@@ -39,18 +40,17 @@ class ConfigFileParser(object):
         }
         for name, value in self._get_non_empty_values():
             if name in validate["url"]:
-                config[name] = config_types.url(value, name)
+                setattr(config, name, config_types.url(value, name))
             elif name in validate["positive_non_zero_integer"]:
-                config[name] = config_types.positive_non_zero_integer(value, name)
+                setattr(config, name, config_types.positive_non_zero_integer(value, name))
             elif name in validate["positive_integer"]:
-                config[name] = config_types.positive_integer(value, name)
+                setattr(config, name, config_types.positive_integer(value, name))
             elif name in validate["boolean"]:
-                config[name] = config_types.boolean(value, name)
+                setattr(config, name, config_types.boolean(value, name))
             elif name in validate["dimension"]:
-                config[name] = config_types.dimension(value, name)
+                setattr(config, name, config_types.dimension(value, name))
             else:
-                config[name] = value
-        return config
+                setattr(config, name, value)
 
     def _get_non_empty_values(self):
         values = {}

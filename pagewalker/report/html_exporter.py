@@ -2,12 +2,13 @@ import json
 from .database import database_reader
 from . import html_exporter_files
 from . import report_utils as utils
+from pagewalker.config import config
 
 
 class HtmlExporter(object):
-    def __init__(self, sqlite_file, current_data_dir):
-        self.db = database_reader.DatabaseReader(sqlite_file)
-        files = html_exporter_files.HtmlExporterFiles(current_data_dir)
+    def __init__(self):
+        self.db = database_reader.DatabaseReader(config.sqlite_file)
+        files = html_exporter_files.HtmlExporterFiles(config.current_data_dir)
         files.prepare_directory()
         self.files = files
         self.error_counts = {}

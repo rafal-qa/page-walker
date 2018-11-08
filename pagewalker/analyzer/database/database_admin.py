@@ -2,41 +2,41 @@ import sqlite3
 import os
 from pagewalker.utilities import url_utils, time_utils, error_utils
 from pagewalker import version
+from pagewalker.config import config
 
 
 class DatabaseAdmin(object):
-    def __init__(self, page_start, sqlite_file, pages_list_file, config_to_save):
-        self.page_start = page_start
-        self.page_host = url_utils.hostname_from_url(page_start)
-        self.sqlite_file = sqlite_file
-        self.pages_list = self._parse_pages_list_file(pages_list_file) if pages_list_file else False
-        self.config_to_save = config_to_save
+    def __init__(self):
+        self.page_host = url_utils.hostname_from_url(config.start_url)
+        self.pages_list = self._parse_pages_list_file()
         self.conn = None
 
-    def _parse_pages_list_file(self, file_name):
+    def _parse_pages_list_file(self):
+        if not config.pages_list_file:
+            return False
         try:
-            with open(file_name, "r") as f:
+            with open(config.pages_list_file, "r") as f:
                 lines = f.readlines()
         except IOError:
-            error_utils.exit_with_message("Unable to open file '%s'" % file_name)
+            error_utils.exit_with_message("Unable to open file '%s'" % config.pages_list_file)
             return
         lines = [x.strip() for x in lines]
         pages_list = []
         for line in lines:
             if line:
                 if not line.startswith("/"):
-                    msg = "Invalid page in '%s' file. '%s' is not starting with '/'" % (file_name, line)
+                    msg = "Invalid page in '%s' file. '%s' is not starting with '/'" % (config.pages_list_file, line)
                     error_utils.exit_with_message(msg)
                 pages_list.append(line)
         if not pages_list:
-            error_utils.exit_with_message("File '%s' does not contain any pages" % file_name)
+            error_utils.exit_with_message("File '%s' does not contain any pages" % config.pages_list_file)
         return pages_list
 
     def get_pages_list_count(self):
         return len(self.pages_list) if self.pages_list else 0
 
     def create_clean_database(self):
-        self._connect_to_new_database(self.sqlite_file)
+        self._connect_to_new_database(config.sqlite_file)
         self._create_empty_tables()
         self._save_initial_config()
         self._add_first_link()
@@ -59,16 +59,31 @@ class DatabaseAdmin(object):
         self.conn.commit()
 
     def _save_initial_config(self):
-        config_values = self.config_to_save
-        config_values["app_version"] = version
-        config_values["page_start"] = self.page_start
-        config_values["page_host"] = self.page_host
-        config_values["time_start"] = time_utils.current_date_time()
+        config_values = {
+            "wait_time_after_load": config.wait_time_after_load,
+            "max_number_pages": config.max_number_pages,
+            "window_size": config.window_size,
+            "headless": self._boolean_to_yes_no(config.chrome_headless),
+            "chrome_timeout": config.chrome_timeout,
+            "validator_enabled":  self._boolean_to_yes_no(config.validator_enabled),
+            "validator_css":  self._boolean_to_yes_no(config.validator_check_css),
+            "validator_warnings":  self._boolean_to_yes_no(config.validator_show_warnings),
+            "scroll_after_load": self._boolean_to_yes_no(config.scroll_after_load),
+            "check_external_links": self._boolean_to_yes_no(config.check_external_links),
+            "check_external_links_timeout": config.check_external_links_timeout,
+            "app_version": version,
+            "page_start": config.start_url,
+            "page_host": self.page_host,
+            "time_start": time_utils.current_date_time()
+        }
         for option, value in config_values.items():
             self.add_to_config(option, value)
 
+    def _boolean_to_yes_no(self, variable):
+        return "Yes" if variable else "No"
+
     def _add_first_link(self):
-        url = url_utils.relative_url(self.page_start)
+        url = url_utils.relative_url(config.start_url)
         c = self.conn.cursor()
         c.execute(
             "INSERT INTO pages (parent_id, url, completion_status, file_type) VALUES (?, ?, ?, ?)", (0, url, 0, 0)

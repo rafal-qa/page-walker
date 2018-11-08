@@ -5,19 +5,18 @@ import json
 import websocket
 from websocket import WebSocketTimeoutException, WebSocketConnectionClosedException
 from pagewalker.utilities import error_utils
+from pagewalker.config import config
 
 
 class DevtoolsSocket(object):
-    def __init__(self, debugging_port, chrome_timeout):
-        self.debugging_port = debugging_port
-        self.chrome_timeout = chrome_timeout
+    def __init__(self):
         self.page_socket = None
         self.send_id = 0
 
     # find *page* debugger socket URL
     # can be several URLs, we want one with "page" type (not "background_page", etc.)
     def connect_to_remote_debugger(self):
-        url = "http://localhost:%s/json" % self.debugging_port
+        url = "http://localhost:%s/json" % config.chrome_debugging_port
         r = self._try_to_connect_until_timeout(url)
         parsed = json.loads(r.text)
         page_debugger_url = False
@@ -43,12 +42,12 @@ class DevtoolsSocket(object):
         )
 
     def close_existing_session(self):
-        url = "http://localhost:%s/json" % self.debugging_port
+        url = "http://localhost:%s/json" % config.chrome_debugging_port
         try:
             requests.get(url)
         except ConnectionError:
             return
-        msg = "Chrome remote debugger already running on port %s." % self.debugging_port
+        msg = "Chrome remote debugger already running on port %s." % config.chrome_debugging_port
         msg += "\nClosing it now. Use different ports to run multiple instances."
         error_utils.show_warning(msg)
         self.send_browser_close()
@@ -59,7 +58,7 @@ class DevtoolsSocket(object):
 
     # find *browser* debugger socket URL
     def send_browser_close(self):
-        r = requests.get("http://localhost:%s/json/version" % self.debugging_port)
+        r = requests.get("http://localhost:%s/json/version" % config.chrome_debugging_port)
         parsed = json.loads(r.text)
         browser_debugger_url = parsed["webSocketDebuggerUrl"]
         browser_socket = websocket.create_connection(browser_debugger_url)
@@ -106,11 +105,11 @@ class DevtoolsSocket(object):
             return False
 
     def _read_until_confirm(self, send_id, method, socket):
-        socket.settimeout(self.chrome_timeout)
+        socket.settimeout(config.chrome_timeout)
         confirm_message = None
         previous_messages = []
         start = time.time()
-        while time.time() - start < self.chrome_timeout:
+        while time.time() - start < config.chrome_timeout:
             try:
                 message = socket.recv()
             except WebSocketTimeoutException:
@@ -133,11 +132,11 @@ class DevtoolsSocket(object):
     #   all messages until all of desired events was found
     #   events_found - False if some of events was not found in timeout
     def read_until_events(self, events):
-        self.page_socket.settimeout(self.chrome_timeout)
+        self.page_socket.settimeout(config.chrome_timeout)
         found = False
         messages = []
         start = time.time()
-        while time.time() - start < self.chrome_timeout:
+        while time.time() - start < config.chrome_timeout:
             try:
                 message = self.page_socket.recv()
             except WebSocketTimeoutException:
