@@ -1,7 +1,7 @@
 from os import path
 from subprocess import Popen
 from . import socket
-from pagewalker.utilities import filesystem_utils, error_utils
+from pagewalker.utilities import filesystem_utils, error_utils, text_utils
 from pagewalker.config import config
 
 
@@ -43,6 +43,8 @@ class DevtoolsRemoteDebug(object):
         self._print_start_message()
         self.debugger_socket.connect_to_remote_debugger()
         self._enable_features()
+        self._set_http_auth_header()
+        self._update_user_agent()
 
     def _print_start_message(self):
         print("")
@@ -57,6 +59,14 @@ class DevtoolsRemoteDebug(object):
         self.debugger_socket.send("Page.setDownloadBehavior", {"behavior": "deny"})  # EXPERIMENTAL
         self.debugger_socket.send("DOM.enable")
         self.debugger_socket.send("Runtime.enable")
+
+    def _set_http_auth_header(self):
+        if config.http_basic_auth_data:
+            headers = {"authorization": "Basic %s" % text_utils.base64_encode(config.http_basic_auth_data)}
+            self.debugger_socket.send("Network.setExtraHTTPHeaders", {"headers": headers})
+
+    def _update_user_agent(self):
+        config.user_agent = self.get_version()["userAgent"]
 
     def end_session(self):
         self.debugger_socket.close_page_connection()

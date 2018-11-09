@@ -1,7 +1,8 @@
 import requests
 import urllib3
 from requests.exceptions import RequestException
-from pagewalker.utilities import error_utils
+from pagewalker.utilities import error_utils, text_utils
+from pagewalker.config import config
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -70,7 +71,9 @@ class HTTPHeadersAnalyzer(object):
         }
 
     def _http_get_only_headers(self, url, allow_redirects):
-        headers = {"user-agent": "Mozilla/5.0 AppleWebKit/537.36 Chrome/66.0.3359.181"}
+        headers = {"user-agent": config.user_agent}
+        if config.http_basic_auth_data:
+            headers["authorization"] = "Basic %s" % text_utils.base64_encode(config.http_basic_auth_data)
         hooks = {"response": lambda response, *args, **kwargs: response.close()}
         try:
             self.r = requests.get(

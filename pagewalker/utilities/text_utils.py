@@ -1,5 +1,6 @@
 import json
 import re
+import base64
 
 
 def remove_whitespace(text):
@@ -19,3 +20,13 @@ def camelcase_to_underscore(text):
     text = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', text)
     text = re.sub('([a-z0-9])([A-Z])', r'\1_\2', text)
     return text.lower()
+
+
+def base64_encode(data):
+    try:
+        data_bytes = bytes(data, encoding='utf-8')  # Python 3
+    except TypeError:
+        data_bytes = bytes(data)  # Python 2
+    base64_bytes = base64.b64encode(data_bytes)
+    data_string = base64_bytes.decode()
+    return data_string
