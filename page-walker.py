@@ -1,16 +1,16 @@
 import argparse
 from os import path
-from pagewalker.config import config_validator, config_file_parser, java_checker
 from pagewalker import prepare_directories, print_version
 from pagewalker.utilities import console_utils, error_utils
 from pagewalker.analyzer import analyzer, http_headers_analyzer
 from pagewalker.report import report
-from pagewalker.config import config
+from pagewalker.config import config_validator, java_checker, config
+from pagewalker.config.file_parser import main_config_parser, cookies_config_parser
 
 
-config_file_parser.ConfigFileParser().apply()
+main_config_parser.MainConfigParser().apply()
 
-argparse_types = config_validator.ConfigValidator("argparse")
+argparse_types = config_validator.ConfigValidatorArgparse()
 parser = argparse.ArgumentParser()
 parser.add_argument("-u", "--url", dest="start_url",
                     help="Full URL of first page to visit (http://example.com/page.html)",
@@ -22,7 +22,8 @@ parser.add_argument("-l", "--headless", dest="chrome_headless",
                     help="Run Chrome in headless mode (yes/no)",
                     type=argparse_types.boolean)
 parser.add_argument("--pages-list", dest="pages_list_file",
-                    help="File containing list of pages to visit (pages relative to main domain)")
+                    help="File containing list of pages to visit (pages relative to main domain)",
+                    type=argparse_types.file)
 parser.add_argument("--list-only", dest="pages_list_only",
                     help="Visit all and only pages from file, if file provided (yes/no)",
                     type=argparse_types.boolean)
@@ -54,6 +55,9 @@ parser.add_argument("--chrome-ignore-cert", dest="chrome_ignore_cert",
                     type=argparse_types.boolean)
 parser.add_argument("--http-auth", dest="http_basic_auth_data",
                     help="HTTP authentication credentials in format login:password")
+parser.add_argument("--cookies-file", dest="custom_cookies_file",
+                    help="Config file with custom cookies definition",
+                    type=argparse_types.file)
 parser.add_argument("--validate", dest="validator_enabled",
                     help="Enable HTML validator (yes/no)",
                     type=argparse_types.boolean)
@@ -86,7 +90,7 @@ if config.validator_enabled:
     java_checker.JavaChecker().disable_validator_if_no_java()
 
 if console_utils.interactive_mode:
-    config_types = config_validator.ConfigValidator("interactive")
+    config_types = config_validator.ConfigValidatorInteractive()
     config.start_url = config_types.url(
         console_utils.read_input("Start URL to test", config.start_url)
     )
@@ -101,8 +105,11 @@ if console_utils.interactive_mode:
 if not config.start_url:
     error_utils.exit_with_message("Start URL is required")
 
+if config.custom_cookies_file:
+    cookies_config_parser.CookiesConfigParser().apply()
+
 http_headers = http_headers_analyzer.HTTPHeadersAnalyzer(config.chrome_timeout)
-http_headers.check_200_ok_html(config.start_url)
+http_headers.check_valid_for_analysis(config.start_url)
 
 prepare_directories.PrepareDirectories().create()
 config.sqlite_file = path.join(config.current_data_dir, "data.db")

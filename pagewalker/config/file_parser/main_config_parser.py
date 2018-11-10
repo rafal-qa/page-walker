@@ -1,24 +1,16 @@
-import os
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
-from . import config_validator
+from .ini_reader import INIReader
+from .. import config_validator
 from pagewalker.utilities import error_utils
 from pagewalker.config import config
 
 
-class ConfigFileParser(object):
+class MainConfigParser(INIReader):
     def __init__(self):
-        if not os.path.isfile(config.ini_file):
-            error_utils.exit_with_message("Config file '%s' not found" % config.ini_file)
-        parser = configparser.ConfigParser()
-        parser.read(config.ini_file)
-        self.parser = parser
+        super(MainConfigParser, self).__init__(config.ini_file)
 
     def apply(self):
-        config_types = config_validator.ConfigValidator("config")
-        validate = {
+        config_types = config_validator.ConfigValidatorFile()
+        validate_options = {
             "url": [
                 "start_url"
             ],
@@ -36,25 +28,28 @@ class ConfigFileParser(object):
             ],
             "dimension": [
                 "window_size"
+            ],
+            "file": [
+                "pages_list_file", "custom_cookies_file"
+            ],
+            "any": [
+                "chrome_binary", "http_basic_auth_data", "validator_vnu_jar", "java_binary"
             ]
         }
-        for name, value in self._get_non_empty_values():
-            if name in validate["url"]:
+        for name, value in self._get_non_empty_values("main"):
+            if name in validate_options["url"]:
                 setattr(config, name, config_types.url(value, name))
-            elif name in validate["positive_non_zero_integer"]:
+            elif name in validate_options["positive_non_zero_integer"]:
                 setattr(config, name, config_types.positive_non_zero_integer(value, name))
-            elif name in validate["positive_integer"]:
+            elif name in validate_options["positive_integer"]:
                 setattr(config, name, config_types.positive_integer(value, name))
-            elif name in validate["boolean"]:
+            elif name in validate_options["boolean"]:
                 setattr(config, name, config_types.boolean(value, name))
-            elif name in validate["dimension"]:
+            elif name in validate_options["dimension"]:
                 setattr(config, name, config_types.dimension(value, name))
-            else:
+            elif name in validate_options["file"]:
+                setattr(config, name, config_types.file(value, name))
+            elif name in validate_options["any"]:
                 setattr(config, name, value)
-
-    def _get_non_empty_values(self):
-        values = {}
-        for name, value in self.parser.items("main"):
-            if not value == '':
-                values[name] = value
-        return values.items()
+            else:
+                error_utils.exit_with_message("Unknown option '%s' in config file '%s'" % (name, config.ini_file))

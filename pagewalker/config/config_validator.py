@@ -1,12 +1,11 @@
+from os import path
 import re
 from argparse import ArgumentTypeError
 from pagewalker.utilities import url_utils, error_utils
+from pagewalker.config import config
 
 
 class ConfigValidator(object):
-    def __init__(self, validation_mode):
-        self.validation_mode = validation_mode
-
     def boolean(self, value, name=None):
         if value.lower() in ("y", "yes", "true", "1"):
             return True
@@ -41,10 +40,31 @@ class ConfigValidator(object):
         else:
             self._error("'%s' is not in the format [width]x[height]" % value, name)
 
+    def file(self, value, name=None):
+        if path.isfile(value):
+            return value
+        else:
+            self._error("File '%s' not found" % value, name)
+
     def _error(self, message, name):
-        if self.validation_mode == "argparse":
-            raise ArgumentTypeError(message)
-        elif self.validation_mode == "config":
-            error_utils.exit_with_message("Invalid '%s' value in config file: %s " % (name, message))
-        elif self.validation_mode == "interactive":
-            error_utils.exit_with_message(message)
+        raise NotImplementedError
+
+
+class ConfigValidatorArgparse(ConfigValidator):
+    def _error(self, message, name):
+        raise ArgumentTypeError(message)
+
+
+class ConfigValidatorFile(ConfigValidator):
+    def _error(self, message, name):
+        error_utils.exit_with_message("Invalid '%s' value in '%s': %s " % (name, config.ini_file, message))
+
+
+class ConfigValidatorCustomCookie(ConfigValidator):
+    def _error(self, message, name):
+        error_utils.exit_with_message("Invalid '%s' value in '%s': %s " % (name, config.custom_cookies_file, message))
+
+
+class ConfigValidatorInteractive(ConfigValidator):
+    def _error(self, message, name):
+        error_utils.exit_with_message(message)

@@ -12,8 +12,9 @@ class HTTPHeadersAnalyzer(object):
         self.timeout = timeout
         self.r = None
 
-    def analyze_for_chrome(self, url):
-        request_success, exception_type = self._http_get_only_headers(url, False)
+    def analyze_for_chrome(self, url, cookies_data):
+        cookie_jar = self._prepare_cookie_jar(cookies_data) if cookies_data else None
+        request_success, exception_type = self._http_get_only_headers(url, False, cookie_jar)
         if not request_success:
             return {
                 "status": "request_exception",
@@ -43,8 +44,9 @@ class HTTPHeadersAnalyzer(object):
             "http_code": self.r.status_code
         }
 
-    def check_200_ok_html(self, url):
-        request_success, exception_type = self._http_get_only_headers(url, False)
+    def check_valid_for_analysis(self, url):
+        cookie_jar = self._prepare_cookie_jar(config.custom_cookies_data) if config.custom_cookies_data else None
+        request_success, exception_type = self._http_get_only_headers(url, False, cookie_jar)
         if not request_success:
             error_utils.exit_with_message("Start URL %s" % exception_type)
         if self.r.is_redirect:
@@ -57,7 +59,7 @@ class HTTPHeadersAnalyzer(object):
             error_utils.exit_with_message("Start URL is not HTML page")
 
     def analyze_for_external_links_check(self, url):
-        request_success, exception_name = self._http_get_only_headers(url, True)
+        request_success, exception_name = self._http_get_only_headers(url, True, None)
         if not request_success:
             return {
                 "redirect_url": None,
@@ -70,15 +72,28 @@ class HTTPHeadersAnalyzer(object):
             "error_name": None
         }
 
-    def _http_get_only_headers(self, url, allow_redirects):
+    def _prepare_cookie_jar(self, cookies_data):
+        jar = requests.cookies.RequestsCookieJar()
+        for single_cookie_data in cookies_data:
+            optional_args = self._cookie_jar_optional_args(single_cookie_data)
+            jar.set(single_cookie_data["name"], single_cookie_data["value"], **optional_args)
+        return jar
+
+    def _cookie_jar_optional_args(self, single_cookie_data):
+        optional_args = {}
+        for option in ["domain", "path"]:
+            if option in single_cookie_data:
+                optional_args[option] = single_cookie_data[option]
+        return optional_args
+
+    def _http_get_only_headers(self, url, allow_redirects, cookie_jar):
         headers = {"user-agent": config.user_agent}
         if config.http_basic_auth_data:
             headers["authorization"] = "Basic %s" % text_utils.base64_encode(config.http_basic_auth_data)
         hooks = {"response": lambda response, *args, **kwargs: response.close()}
         try:
-            self.r = requests.get(
-                url, headers=headers, hooks=hooks, timeout=self.timeout, allow_redirects=allow_redirects, verify=False
-            )
+            self.r = requests.get(url, headers=headers, hooks=hooks, timeout=self.timeout,
+                                  allow_redirects=allow_redirects, cookies=cookie_jar, verify=False)
             return True, None
         except RequestException as e:
             return False, type(e).__name__

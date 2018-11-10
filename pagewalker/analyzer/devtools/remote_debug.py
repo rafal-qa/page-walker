@@ -43,6 +43,7 @@ class DevtoolsRemoteDebug(object):
         self._print_start_message()
         self.debugger_socket.connect_to_remote_debugger()
         self._enable_features()
+        self._set_custom_cookies()
         self._set_http_auth_header()
         self._update_user_agent()
 
@@ -60,6 +61,20 @@ class DevtoolsRemoteDebug(object):
         self.debugger_socket.send("DOM.enable")
         self.debugger_socket.send("Runtime.enable")
 
+    def _set_custom_cookies(self):
+        if config.custom_cookies_data:
+            for single_cookie_data in config.custom_cookies_data:
+                self._set_cookie(single_cookie_data)
+
+    def _set_cookie(self, cookie_data):
+        # "At least one of the url and domain needs to be specified"
+        if "domain" not in cookie_data:
+            cookie_data["url"] = config.start_url
+        # .ini file is case-insensitive, but DevTools protocol requires "httpOnly"
+        if "httponly" in cookie_data:
+            cookie_data["httpOnly"] = cookie_data.pop("httponly")
+        self.debugger_socket.send("Network.setCookie", cookie_data)
+
     def _set_http_auth_header(self):
         if config.http_basic_auth_data:
             headers = {"authorization": "Basic %s" % text_utils.base64_encode(config.http_basic_auth_data)}
@@ -67,6 +82,18 @@ class DevtoolsRemoteDebug(object):
 
     def _update_user_agent(self):
         config.user_agent = self.get_version()["userAgent"]
+
+    def get_cookies_for_url(self, url):
+        cookies_data = []
+        result = self.debugger_socket.send("Network.getCookies", {"urls": [url]})
+        for cookie in result["cookies"]:
+            cookies_data.append({
+                "name": cookie["name"],
+                "value": cookie["value"],
+                "domain": cookie["domain"],
+                "path": cookie["path"]
+            })
+        return cookies_data
 
     def end_session(self):
         self.debugger_socket.close_page_connection()

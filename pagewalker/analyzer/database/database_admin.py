@@ -14,12 +14,8 @@ class DatabaseAdmin(object):
     def _parse_pages_list_file(self):
         if not config.pages_list_file:
             return False
-        try:
-            with open(config.pages_list_file, "r") as f:
-                lines = f.readlines()
-        except IOError:
-            error_utils.exit_with_message("Unable to open file '%s'" % config.pages_list_file)
-            return
+        with open(config.pages_list_file, "r") as f:
+            lines = f.readlines()
         lines = [x.strip() for x in lines]
         pages_list = []
         for line in lines:

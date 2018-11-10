@@ -80,8 +80,9 @@ class Analyzer(object):
         db_page_writer.completion_status_finished()
 
     def _headers_analysis_before_chrome(self, db_writer, url):
+        cookies_data = self.devtools_remote.get_cookies_for_url(url)
         http_headers = http_headers_analyzer.HTTPHeadersAnalyzer(config.chrome_timeout)
-        url_result = http_headers.analyze_for_chrome(url)
+        url_result = http_headers.analyze_for_chrome(url, cookies_data)
         status = url_result["status"]
         if status == "ok":
             return True
