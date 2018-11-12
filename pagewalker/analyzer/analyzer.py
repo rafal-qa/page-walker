@@ -63,7 +63,7 @@ class Analyzer(object):
         devtools_parser.append_response(messages)
 
         if config.scroll_after_load:
-            devtools_remote.scroll_to_bottom()
+            devtools_remote.actions.scroll_to_bottom()
 
         messages = devtools_remote.wait(config.wait_time_after_load)
         devtools_parser.append_response(messages)

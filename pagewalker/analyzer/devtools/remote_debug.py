@@ -1,6 +1,7 @@
 from os import path
 from subprocess import Popen
-from . import socket
+from . import socket, remote_debug_actions
+from .. import initial_actions
 from pagewalker.utilities import filesystem_utils, error_utils, text_utils
 from pagewalker.config import config
 
@@ -11,6 +12,7 @@ class DevtoolsRemoteDebug(object):
         self.profile_dir = path.join(config.chrome_data_dir, subdir)
         self.log_file = path.join(config.current_data_dir, "chrome_run.log")
         self.debugger_socket = socket.DevtoolsSocket()
+        self.actions = remote_debug_actions.RemoteDebugActions(self.debugger_socket)
 
         window_size_command = config.window_size.replace("x", ",")
         command_parts = [
@@ -45,6 +47,7 @@ class DevtoolsRemoteDebug(object):
         self._enable_features()
         self._set_custom_cookies()
         self._set_http_auth_header()
+        self._initial_actions()
         self._update_user_agent()
 
     def _print_start_message(self):
@@ -79,6 +82,10 @@ class DevtoolsRemoteDebug(object):
         if config.http_basic_auth_data:
             headers = {"authorization": "Basic %s" % text_utils.base64_encode(config.http_basic_auth_data)}
             self.debugger_socket.send("Network.setExtraHTTPHeaders", {"headers": headers})
+
+    def _initial_actions(self):
+        if config.initial_actions_data:
+            initial_actions.InitialActions(self).execute()
 
     def _update_user_agent(self):
         config.user_agent = self.get_version()["userAgent"]
@@ -141,12 +148,6 @@ class DevtoolsRemoteDebug(object):
         root_node = result["root"]["nodeId"]
         html_object = self.debugger_socket.send("DOM.getOuterHTML", {"nodeId": root_node})
         return html_object["outerHTML"] if html_object else ""
-
-    def scroll_to_bottom(self):
-        self.debugger_socket.send("Runtime.evaluate", {
-            "expression": "window.scrollTo(0,document.body.scrollHeight);",
-            "awaitPromise": True
-        })
 
     def wait(self, wait_time):
         return self.debugger_socket.read_until_timeout(wait_time)

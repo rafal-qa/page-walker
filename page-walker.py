@@ -5,7 +5,7 @@ from pagewalker.utilities import console_utils, error_utils
 from pagewalker.analyzer import analyzer, http_headers_analyzer
 from pagewalker.report import report
 from pagewalker.config import config_validator, java_checker, config
-from pagewalker.config.file_parser import main_config_parser, cookies_config_parser
+from pagewalker.config.file_parser import main_config_parser, cookies_config_parser, initial_actions_config_parser
 
 
 main_config_parser.MainConfigParser().apply()
@@ -58,6 +58,12 @@ parser.add_argument("--http-auth", dest="http_basic_auth_data",
 parser.add_argument("--cookies-file", dest="custom_cookies_file",
                     help="Config file with custom cookies definition",
                     type=argparse_types.file)
+parser.add_argument("--initial-actions-file", dest="initial_actions_file",
+                    help="Config file with initial actions definition",
+                    type=argparse_types.file)
+parser.add_argument("--initial-actions-url", dest="initial_actions_url",
+                    help="URL of the page on which to perform initial actions (default the same as 'start_url')",
+                    type=argparse_types.url)
 parser.add_argument("--validate", dest="validator_enabled",
                     help="Enable HTML validator (yes/no)",
                     type=argparse_types.boolean)
@@ -108,8 +114,10 @@ if not config.start_url:
 if config.custom_cookies_file:
     cookies_config_parser.CookiesConfigParser().apply()
 
-http_headers = http_headers_analyzer.HTTPHeadersAnalyzer(config.chrome_timeout)
-http_headers.check_valid_for_analysis(config.start_url)
+if config.initial_actions_file:
+    initial_actions_config_parser.InitialActionsConfigParser().apply()
+
+http_headers_analyzer.HTTPHeadersAnalyzer(config.chrome_timeout).check_valid_first_url()
 
 prepare_directories.PrepareDirectories().create()
 config.sqlite_file = path.join(config.current_data_dir, "data.db")

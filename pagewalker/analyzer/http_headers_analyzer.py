@@ -44,19 +44,26 @@ class HTTPHeadersAnalyzer(object):
             "http_code": self.r.status_code
         }
 
-    def check_valid_for_analysis(self, url):
+    def check_valid_first_url(self):
+        url = self._get_first_url()
         cookie_jar = self._prepare_cookie_jar(config.custom_cookies_data) if config.custom_cookies_data else None
         request_success, exception_type = self._http_get_only_headers(url, False, cookie_jar)
         if not request_success:
             error_utils.exit_with_message("Start URL %s" % exception_type)
         if self.r.is_redirect:
-            msg = "Start URL %s redirects to %s" % (url, self.r.headers["Location"])
+            msg = "%s redirects to %s" % (url, self.r.headers["Location"])
             msg += "\nPlease provide non-redirecting URL"
             error_utils.exit_with_message(msg)
         if not self.r.ok:
-            error_utils.exit_with_message("Start URL returned HTTP error '%s'" % self._http_status())
+            error_utils.exit_with_message("%s returned HTTP error: %s" % (url, self._http_status()))
         if not self._is_http():
-            error_utils.exit_with_message("Start URL is not HTML page")
+            error_utils.exit_with_message("%s is not HTML page" % url)
+
+    def _get_first_url(self):
+        if config.initial_actions_file and config.initial_actions_url:
+            return config.initial_actions_url
+        else:
+            return config.start_url
 
     def analyze_for_external_links_check(self, url):
         request_success, exception_name = self._http_get_only_headers(url, True, None)

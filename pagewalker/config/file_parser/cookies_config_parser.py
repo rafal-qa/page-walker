@@ -19,7 +19,7 @@ class CookiesConfigParser(INIReader):
     def _single_cookie(self, section):
         print("[INFO] Custom cookie: %s" % section)
         cookie = {}
-        for name, value in self._get_non_empty_values(section):
+        for name, value in self._get_non_empty_values(section).items():
             self._validate_allowed_option(name)
             if name in ["secure", "httponly"]:
                 cookie[name] = self.config_types.boolean(value, name)

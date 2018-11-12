@@ -18,4 +18,4 @@ class INIReader(object):
         for name, value in self.parser.items(section):
             if not value == '':
                 values[name] = value
-        return values.items()
+        return values

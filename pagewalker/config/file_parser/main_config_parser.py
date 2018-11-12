@@ -12,7 +12,7 @@ class MainConfigParser(INIReader):
         config_types = config_validator.ConfigValidatorFile()
         validate_options = {
             "url": [
-                "start_url"
+                "start_url", "initial_actions_url"
             ],
             "positive_non_zero_integer": [
                 "max_number_pages", "chrome_debugging_port", "chrome_timeout", "java_stack_size",
@@ -30,13 +30,13 @@ class MainConfigParser(INIReader):
                 "window_size"
             ],
             "file": [
-                "pages_list_file", "custom_cookies_file"
+                "pages_list_file", "custom_cookies_file", "initial_actions_file"
             ],
             "any": [
                 "chrome_binary", "http_basic_auth_data", "validator_vnu_jar", "java_binary"
             ]
         }
-        for name, value in self._get_non_empty_values("main"):
+        for name, value in self._get_non_empty_values("main").items():
             if name in validate_options["url"]:
                 setattr(config, name, config_types.url(value, name))
             elif name in validate_options["positive_non_zero_integer"]:
