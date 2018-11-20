@@ -1,0 +1,13 @@
+{
+  "malware-0": [
+    "https://gitcdn.xyz/repo/NanoMeow/MDLMirror/master/hosts.txt",
+    "https://raw.githubusercontent.com/NanoMeow/MDLMirror/master/hosts.txt"
+  ],
+  "malware-1": [
+    "https://mirror.cedia.org.ec/malwaredomains/justdomains",
+    "https://mirror1.malwaredomains.com/files/justdomains"
+  ],
+  "spam404": [
+    "https://raw.githubusercontent.com/Spam404/lists/master/main-blacklist.txt"
+  ]
+}
