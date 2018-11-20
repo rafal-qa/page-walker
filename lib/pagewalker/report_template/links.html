@@ -65,6 +65,8 @@
             If there is a redirection, the status of the final URL ("Redirects to" column)</li>
           <li><strong>On pages</strong> - Number of pages on which this link was found<br />
             Click number to open list of example pages</li>
+          <li><strong>Blacklist status</strong> - Tells if the domain is blacklisted because of malware, scam<br />
+            If so, indicates which URL: from "Link" column or "Redirects to" column</li>
         </ul>
       </div>
       <div class="ui clearing hidden divider"></div>
@@ -77,6 +79,14 @@
         </div>
         <div class="label">
           errors
+        </div>
+      </div>
+      <div class="statistic stats-blacklist">
+        <div class="value">
+          --
+        </div>
+        <div class="label">
+         to blacklisted<br />domain
         </div>
       </div>
       <div class="statistic stats-redirect">
@@ -103,6 +113,7 @@
             <th>Redirects to</th>
             <th>Status</th>
             <th>On pages</th>
+            <th>Black<wbr>list status</th>
           </tr>
         </thead>
         <tbody></tbody>

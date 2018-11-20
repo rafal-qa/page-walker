@@ -3,6 +3,7 @@ from os import path
 from pagewalker import prepare_directories, print_version
 from pagewalker.utilities import console_utils, error_utils
 from pagewalker.analyzer import analyzer, http_headers_analyzer
+from pagewalker.analyzer.blacklist import blacklist_downloader
 from pagewalker.report import report
 from pagewalker.config import config_validator, java_checker, config
 from pagewalker.config.file_parser import main_config_parser, cookies_config_parser, initial_actions_config_parser
@@ -78,9 +79,9 @@ parser.add_argument("--java-binary", dest="java_binary",
 parser.add_argument("--check-links", dest="check_external_links",
                     help="Check external links (yes/no)",
                     type=argparse_types.boolean)
-parser.add_argument("--check-links-timeout", dest="check_external_links_timeout",
-                    help="Connection timeout in seconds",
-                    type=argparse_types.positive_non_zero_integer)
+parser.add_argument("--domain-blacklist", dest="domain_blacklist_enabled",
+                    help="Check if domains are blacklisted due to malware, scam (yes/no)",
+                    type=argparse_types.boolean)
 parser.add_argument("-v", "--version", help="Show Page Walker and Python version", action='store_true')
 args = parser.parse_args()
 
@@ -116,6 +117,9 @@ if config.custom_cookies_file:
 
 if config.initial_actions_file:
     initial_actions_config_parser.InitialActionsConfigParser().apply()
+
+if config.domain_blacklist_enabled:
+    blacklist_downloader.BlacklistDownloader().update()
 
 http_headers_analyzer.HTTPHeadersAnalyzer(config.chrome_timeout).check_valid_first_url()
 

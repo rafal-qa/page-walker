@@ -58,3 +58,17 @@ def has_valid_scheme(url, schemes):
 
 def trim_url(url):
     return url.split("?")[0]
+
+
+def all_level_subdomains(url):
+    if not url:
+        return []
+    host = urlsplit(url).netloc
+    if not host:
+        return []
+    subdomains = []
+    parts = host.split(".")
+    while len(parts) > 1:
+        subdomains.append(".".join(parts))
+        parts.pop(0)
+    return subdomains

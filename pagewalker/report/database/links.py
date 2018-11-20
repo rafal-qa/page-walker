@@ -6,7 +6,8 @@ class DatabaseLinks(object):
     def link_list(self):
         c = self.conn.cursor()
         c.execute("""
-            SELECT L.link_id, COUNT(*), U.url, U.redirect_url, U.http_status, U.exception_name
+            SELECT L.link_id, COUNT(*), U.url, U.url_blacklisted, U.redirect_url, U.redirect_url_blacklisted,
+                   U.http_status, U.exception_name
             FROM external_links AS L
             JOIN external_links_url AS U
                 ON L.link_id = U.id
@@ -15,12 +16,15 @@ class DatabaseLinks(object):
         result = c.fetchall()
         data_links = []
         for row in result:
-            link_id, occurrences, url, redirect_url, http_status, exception_name = row
+            link_id, occurrences, url, url_blacklisted, redirect_url, redirect_url_blacklisted, \
+                http_status, exception_name = row
             one_link_data = {
                 "id": link_id,
                 "occurrences": occurrences,
                 "url": url,
+                "url_blacklisted": url_blacklisted,
                 "redirect_url": redirect_url,
+                "redirect_url_blacklisted": redirect_url_blacklisted,
                 "http_status": http_status,
                 "exception_name": exception_name
             }

@@ -101,6 +101,7 @@ class HtmlExporter(object):
         counts = {
             "error_internal": 0,
             "error_external": 0,
+            "blacklist": 0,
             "requests_internal": 0,
             "requests_external": 0,
             "requests_cached": 0
@@ -115,12 +116,13 @@ class HtmlExporter(object):
         stat = {
             "error_internal": counts["error_internal"],
             "error_external": counts["error_external"],
+            "blacklist": counts["blacklist"],
             "cached_percent": utils.percent(counts["requests_cached"], stat_requests_all, True),
             "external_percent": utils.percent(counts["requests_external"], stat_requests_all, True)
         }
 
         data_order = (
-            "id", "url", "is_truncated", "is_external",
+            "id", "url", "url_blacklisted", "is_truncated", "is_external",
             "requests_all", "requests_errors", "requests_cached_percent", "requests_unfinished_percent",
             "avg_size", "avg_load_time", "pages_with_error"
         )
@@ -132,7 +134,7 @@ class HtmlExporter(object):
             "stat": stat
         }
 
-        self.error_counts["resources"] = stat["error_internal"] + stat["error_external"]
+        self.error_counts["resources"] = stat["error_internal"] + stat["error_external"] + stat["blacklist"]
         self.files.save_json(save_data, "resources")
 
     def _single_resource_data(self, row, resources_stat, resources_error):
@@ -159,6 +161,7 @@ class HtmlExporter(object):
         return {
             "id": resource_id,
             "url": row["url"],
+            "url_blacklisted": row["url_blacklisted"],
             "is_truncated": row["is_truncated"],
             "is_external": is_external,
             "requests_all": requests_all,
@@ -185,6 +188,9 @@ class HtmlExporter(object):
 
         if data["from_cache"]:
             counts["requests_cached"] += 1
+
+        if data["url_blacklisted"]:
+            counts["blacklist"] += 1
 
     def report_javascript(self):
         exceptions = self.db.javascript_data.exception_list()
@@ -265,6 +271,7 @@ class HtmlExporter(object):
         pages_with_link = self.db.links_data.pages_with_link()
         counts = {
             "failed_sum": 0,
+            "blacklist": 0,
             "redirect_sum": 0
         }
         data_links = []
@@ -277,18 +284,22 @@ class HtmlExporter(object):
                 counts["failed_sum"] += 1
             if single_link_data["redirect_url"]:
                 counts["redirect_sum"] += 1
+            if single_link_data["url_blacklisted"] or single_link_data["redirect_url_blacklisted"]:
+                counts["blacklist"] += 1
 
-        data_order = ("id", "occurrences", "url", "redirect_url", "http_status", "exception_name", "pages_with_link")
+        data_order = ("id", "occurrences", "url", "url_blacklisted", "redirect_url", "redirect_url_blacklisted",
+                      "http_status", "exception_name", "pages_with_link")
         data_simplified = utils.convert_dict_to_list(data_links, data_order)
         save_data = {
             "head": data_order,
             "main": data_simplified,
             "stat": {
                 "failed": counts["failed_sum"],
+                "blacklist": counts["blacklist"],
                 "redirect": counts["redirect_sum"]
             }
         }
-        self.error_counts["links"] = counts["failed_sum"]
+        self.error_counts["links"] = counts["failed_sum"] + counts["blacklist"]
         self.files.save_json(save_data, "links")
 
     def report_validator(self):

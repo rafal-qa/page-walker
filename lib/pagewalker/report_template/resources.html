@@ -73,6 +73,7 @@
           <li><strong>Unfinished requests</strong> - When the browser send request and go to the next page without waiting for a response<br />
             For example asynchronous, non-blocking requests<br />
             We are unable to determine if this is an error</li>
+          <li><strong>Blacklist status</strong> (only External) - Tells if the domain is blacklisted because of malware, scam</li>
         </ul>
       </div>
       <div class="ui clearing hidden divider"></div>
@@ -84,7 +85,7 @@
           --
         </div>
         <div class="label">
-          internal<br />resources<br />with error
+          internal<br />with error
         </div>
       </div>
       <div class="statistic stats-error_external">
@@ -92,10 +93,18 @@
           --
         </div>
         <div class="label">
-          external<br />resources<br />with error
+          external<br />with error
         </div>
       </div>
-          <div class="statistic stats-cached_percent">
+      <div class="statistic stats-blacklist">
+        <div class="value">
+          --
+        </div>
+        <div class="label">
+         from blacklisted<br />domain
+        </div>
+      </div>
+      <div class="statistic stats-cached_percent">
         <div class="value">
           --
         </div>
@@ -122,7 +131,7 @@
       </a>
     </div>
 
-    <div class="table-wrapper report-internal hidden">
+    <div class="table-wrapper report-internal hidden hide-8th-column">
       <table class="ui selectable celled unstackable table">
         <thead>
           <tr>
@@ -133,6 +142,7 @@
             <th>Resource size [KB]</th>
             <th>Non-cached avg. load time [ms]</th>
             <th>Unfinished requests</th>
+            <th></th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -150,6 +160,7 @@
             <th>Resource size [KB]</th>
             <th>Non-cached avg. load time [ms]</th>
             <th>Unfinished requests</th>
+            <th>Black<wbr>list status</th>
           </tr>
         </thead>
         <tbody></tbody>

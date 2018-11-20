@@ -1,6 +1,7 @@
 from .devtools import remote_debug, response_parser
 from .database import database_admin, database_writer
 from . import html_parser, links_parser, external_links, html_validator, http_headers_analyzer
+from .blacklist import blacklist_checker
 from pagewalker.config import config
 
 
@@ -38,6 +39,8 @@ class Analyzer(object):
 
         devtools_remote.end_session()
         self.validator.validate()
+        if config.domain_blacklist_enabled:
+            blacklist_checker.BlacklistChecker(db_connection).check()
         db_admin.close_database()
 
     def _analyze_page(self, page_id, url):

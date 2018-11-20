@@ -14,6 +14,11 @@ code {
     display: none;
 }
 
+.hide-8th-column th:nth-child(8),
+.hide-8th-column td:nth-child(8) {
+   display: none;
+}
+
 .ui.footer {
     padding-top: 20px;
     padding-bottom: 20px;

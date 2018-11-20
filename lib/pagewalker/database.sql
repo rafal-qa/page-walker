@@ -23,6 +23,7 @@ CREATE TABLE pages_stat (
 CREATE TABLE devtools_resource (
 	id integer PRIMARY KEY AUTOINCREMENT,
 	url text,
+	url_blacklisted integer,
 	is_truncated integer,
 	is_external integer
 );
@@ -108,8 +109,10 @@ CREATE TABLE external_links (
 CREATE TABLE external_links_url (
 	id integer PRIMARY KEY AUTOINCREMENT,
 	url text,
+	url_blacklisted integer,
 	checked integer,
 	redirect_url text,
+	redirect_url_blacklisted integer,
 	http_status integer,
 	exception_name text
 );

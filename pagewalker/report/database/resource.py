@@ -6,7 +6,7 @@ class DatabaseResource(object):
     def resource_list_only(self):
         c = self.conn.cursor()
         c.execute("""
-            SELECT DISTINCT RS.id, RS.url, RS.is_truncated, RS.is_external
+            SELECT DISTINCT RS.id, RS.url, RS.url_blacklisted, RS.is_truncated, RS.is_external
             FROM devtools_request AS RQ
             JOIN devtools_resource AS RS
                 ON RQ.resource_id = RS.id
@@ -15,10 +15,11 @@ class DatabaseResource(object):
         result = c.fetchall()
         data_resources = []
         for row in result:
-            resource_id, url, is_truncated, is_external = row
+            resource_id, url, url_blacklisted, is_truncated, is_external = row
             resource_data = {
                 "id": resource_id,
                 "url": url,
+                "url_blacklisted": url_blacklisted,
                 "is_truncated": is_truncated,
                 "is_external": is_external
             }
