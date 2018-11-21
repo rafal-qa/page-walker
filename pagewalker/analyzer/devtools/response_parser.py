@@ -45,13 +45,19 @@ class DevtoolsResponseParser(object):
             instance_method(message["params"])
 
     def runtime_exception_thrown(self, params):
-        details = params["exceptionDetails"]
-        if "exception" in details and "description" in details["exception"]:
-            description = details["exception"]["description"]
-        else:
-            description = details["text"]
+        description = self._runtime_exception_thrown_description(params["exceptionDetails"])
         description = text_utils.remove_whitespace(description)
         self.runtime_exceptions.append(description)
+
+    def _runtime_exception_thrown_description(self, details):
+        description = details["text"]
+        if "exception" not in details:
+            return description
+        if "description" not in details["exception"]:
+            return description
+        first_line = details["exception"]["description"].splitlines()[0]
+        description += " " + first_line
+        return description
 
     def network_request_will_be_sent(self, params):
         request_id = params["requestId"]
