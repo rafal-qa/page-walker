@@ -1,5 +1,6 @@
 import sqlite3
 import os
+from os import path
 from pagewalker.utilities import url_utils, time_utils, error_utils
 from pagewalker import version
 from pagewalker.config import config
@@ -32,14 +33,15 @@ class DatabaseAdmin(object):
         return len(self.pages_list) if self.pages_list else 0
 
     def create_clean_database(self):
-        self._connect_to_new_database(config.sqlite_file)
+        self._connect_to_new_database()
         self._create_empty_tables()
         self._save_initial_config()
         self._add_first_link()
         if self.pages_list:
             self._add_links_from_list()
 
-    def _connect_to_new_database(self, sqlite_file):
+    def _connect_to_new_database(self):
+        sqlite_file = path.join(config.current_data_dir, "data.db")
         try:
             os.remove(sqlite_file)
         except OSError:
@@ -47,7 +49,7 @@ class DatabaseAdmin(object):
         self.conn = sqlite3.connect(sqlite_file)
 
     def _create_empty_tables(self):
-        schema_file = os.path.join("lib", "pagewalker", "database.sql")
+        schema_file = path.join(config.root, "lib", "pagewalker", "database.sql")
         with open(schema_file) as f:
             sql_data = f.read()
         c = self.conn.cursor()

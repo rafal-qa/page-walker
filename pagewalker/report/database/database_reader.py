@@ -1,9 +1,12 @@
+from os import path
 import sqlite3
 from . import general, javascript, console, page, validator, resource, links
+from pagewalker.config import config
 
 
 class DatabaseReader(object):
-    def __init__(self, db_file):
+    def __init__(self):
+        db_file = path.join(config.current_data_dir, "data.db")
         conn = sqlite3.connect(db_file)
         self.conn = conn
         self.general_data = general.DatabaseGeneral(conn)

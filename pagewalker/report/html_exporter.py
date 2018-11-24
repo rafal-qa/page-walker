@@ -1,14 +1,12 @@
 import json
 from .database import database_reader
-from . import html_exporter_files
-from . import report_utils as utils
-from pagewalker.config import config
+from . import html_exporter_files, report_utils
 
 
 class HtmlExporter(object):
     def __init__(self):
-        self.db = database_reader.DatabaseReader(config.sqlite_file)
-        files = html_exporter_files.HtmlExporterFiles(config.current_data_dir)
+        self.db = database_reader.DatabaseReader()
+        files = html_exporter_files.HtmlExporterFiles()
         files.prepare_directory()
         self.files = files
         self.error_counts = {}
@@ -33,15 +31,15 @@ class HtmlExporter(object):
             "pages": counts["pages"],
             "files": counts["files"],
             "failed": counts["failed"],
-            "requests_per_page": utils.list_average_as_int(counts["requests_total_list"]),
-            "load_time": utils.list_average_as_int(counts["load_time_list"])
+            "requests_per_page": report_utils.list_average_as_int(counts["requests_total_list"]),
+            "load_time": report_utils.list_average_as_int(counts["load_time_list"])
         }
 
         data_order = (
             "id", "url", "file_content_type", "file_content_length", "time_load", "http_status", "exception_name",
             "requests_count", "requests_cached_percent", "data_received_sum", "backlink"
         )
-        data_simplified = utils.convert_dict_to_list(data_pages, data_order)
+        data_simplified = report_utils.convert_dict_to_list(data_pages, data_order)
 
         save_data = {
             "head": data_order,
@@ -57,16 +55,16 @@ class HtmlExporter(object):
         stats = requests_stats[page_id] if page_id in requests_stats else {}
         requests_count = stats["requests_count"] if "requests_count" in stats else None
         if "from_cache" in stats and stats["from_cache"] is not None:
-            requests_cached_percent = utils.percent(stats["from_cache"], requests_count)
+            requests_cached_percent = report_utils.percent(stats["from_cache"], requests_count)
         else:
             requests_cached_percent = None
         if "data_received" in stats:
-            data_received_sum = utils.bytes_to_kilobytes_as_int(stats["data_received"])
+            data_received_sum = report_utils.bytes_to_kilobytes_as_int(stats["data_received"])
         else:
             data_received_sum = None
         file_content_length = page_data["file_content_length"]
         if file_content_length is not None:
-            file_content_length = utils.bytes_to_kilobytes_as_int(file_content_length)
+            file_content_length = report_utils.bytes_to_kilobytes_as_int(file_content_length)
         return {
             "id": page_id,
             "url": page_data["url"],
@@ -117,8 +115,8 @@ class HtmlExporter(object):
             "error_internal": counts["error_internal"],
             "error_external": counts["error_external"],
             "blacklist": counts["blacklist"],
-            "cached_percent": utils.percent(counts["requests_cached"], stat_requests_all, True),
-            "external_percent": utils.percent(counts["requests_external"], stat_requests_all, True)
+            "cached_percent": report_utils.percent(counts["requests_cached"], stat_requests_all, True),
+            "external_percent": report_utils.percent(counts["requests_external"], stat_requests_all, True)
         }
 
         data_order = (
@@ -126,7 +124,7 @@ class HtmlExporter(object):
             "requests_all", "requests_errors", "requests_cached_percent", "requests_unfinished_percent",
             "avg_size", "avg_load_time", "pages_with_error"
         )
-        data_simplified = utils.convert_dict_to_list(data_resources, data_order)
+        data_simplified = report_utils.convert_dict_to_list(data_resources, data_order)
 
         save_data = {
             "head": data_order,
@@ -147,8 +145,8 @@ class HtmlExporter(object):
         requests_all = requests_finished + requests_unfinished
 
         from_cache = stats["from_cache"] if "from_cache" in stats else 0
-        requests_cached_percent = utils.percent(from_cache, requests_finished)
-        requests_unfinished_percent = utils.percent(requests_unfinished, requests_all)
+        requests_cached_percent = report_utils.percent(from_cache, requests_finished)
+        requests_unfinished_percent = report_utils.percent(requests_unfinished, requests_all)
 
         avg_size = stats["avg_size"] if "avg_size" in stats else 0
         avg_load_time = stats["avg_load_time"] if "avg_load_time" in stats else 0
@@ -169,7 +167,7 @@ class HtmlExporter(object):
             "from_cache": from_cache,
             "requests_cached_percent": requests_cached_percent,
             "requests_unfinished_percent": requests_unfinished_percent,
-            "avg_size": utils.bytes_to_kilobytes_as_int(avg_size),
+            "avg_size": report_utils.bytes_to_kilobytes_as_int(avg_size),
             "avg_load_time": avg_load_time,
             "pages_with_error": pages_with_error
         }
@@ -212,7 +210,7 @@ class HtmlExporter(object):
         }
 
         data_order = ("id", "occurrences", "description", "pages_with_error")
-        data_simplified = utils.convert_dict_to_list(data_exceptions, data_order)
+        data_simplified = report_utils.convert_dict_to_list(data_exceptions, data_order)
 
         save_data = {
             "head": data_order,
@@ -255,7 +253,7 @@ class HtmlExporter(object):
         }
 
         data_order = ("id", "occurrences", "level_id", "source_id", "description", "pages_with_log")
-        data_simplified = utils.convert_dict_to_list(data_console, data_order)
+        data_simplified = report_utils.convert_dict_to_list(data_console, data_order)
 
         save_data = {
             "head": data_order,
@@ -289,7 +287,7 @@ class HtmlExporter(object):
 
         data_order = ("id", "occurrences", "url", "url_blacklisted", "redirect_url", "redirect_url_blacklisted",
                       "http_status", "exception_name", "pages_with_link")
-        data_simplified = utils.convert_dict_to_list(data_links, data_order)
+        data_simplified = report_utils.convert_dict_to_list(data_links, data_order)
         save_data = {
             "head": data_order,
             "main": data_simplified,
@@ -341,7 +339,7 @@ class HtmlExporter(object):
         }
 
         data_order = ("id", "html_type", "message", "extract", "occurrences", "is_error", "details")
-        data_simplified = utils.convert_dict_to_list(data_validator, data_order)
+        data_simplified = report_utils.convert_dict_to_list(data_validator, data_order)
 
         save_data = {
             "head": data_order,
@@ -383,7 +381,7 @@ class HtmlExporter(object):
     def report_summary(self):
         stat = self.db.general_data.summary()
         stat["unique_errors"] = sum(self.error_counts.values())
-        stat["data_total"] = utils.bytes_to_megabytes_as_string(stat["data_total"]) if stat["data_total"] else 0
+        stat["data_total"] = report_utils.bytes_to_megabytes_as_string(stat["data_total"]) if stat["data_total"] else 0
         save_data = {
             "config": self.db.general_data.config_data(),
             "error": self.error_counts,

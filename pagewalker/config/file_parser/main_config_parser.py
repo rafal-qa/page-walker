@@ -1,3 +1,4 @@
+from os import path
 from .ini_reader import INIReader
 from .. import config_validator
 from pagewalker.utilities import error_utils
@@ -6,7 +7,12 @@ from pagewalker.config import config
 
 class MainConfigParser(INIReader):
     def __init__(self):
+        self._check_ini_file_exists()
         super(MainConfigParser, self).__init__(config.ini_file)
+
+    def _check_ini_file_exists(self):
+        if not path.exists(config.ini_file):
+            error_utils.exit_with_message("File '%s' not found" % config.ini_file)
 
     def apply(self):
         config_types = config_validator.ConfigValidatorFile()

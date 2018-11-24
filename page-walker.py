@@ -1,5 +1,4 @@
 import argparse
-from os import path
 from pagewalker import prepare_directories, print_version
 from pagewalker.utilities import console_utils, error_utils
 from pagewalker.analyzer import analyzer, http_headers_analyzer
@@ -124,7 +123,6 @@ if config.domain_blacklist_enabled:
 http_headers_analyzer.HTTPHeadersAnalyzer(config.chrome_timeout).check_valid_first_url()
 
 prepare_directories.PrepareDirectories().create()
-config.sqlite_file = path.join(config.current_data_dir, "data.db")
 
 analyzer.Analyzer().start_new_analysis()
 
