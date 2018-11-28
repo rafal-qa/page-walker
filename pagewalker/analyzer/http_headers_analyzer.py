@@ -1,7 +1,7 @@
 import requests
 import urllib3
 from requests.exceptions import RequestException
-from pagewalker.utilities import error_utils, text_utils
+from pagewalker.utilities import error_utils, text_utils, url_utils
 from pagewalker.config import config
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -47,23 +47,41 @@ class HTTPHeadersAnalyzer(object):
     def check_valid_first_url(self):
         url = self._get_first_url()
         cookie_jar = self._prepare_cookie_jar(config.custom_cookies_data) if config.custom_cookies_data else None
-        request_success, exception_type = self._http_get_only_headers(url, False, cookie_jar)
+        request_success, exception_type = self._http_get_only_headers(url, True, cookie_jar)
         if not request_success:
-            error_utils.exit_with_message("Start URL %s" % exception_type)
-        if self.r.is_redirect:
-            msg = "%s redirects to %s" % (url, self.r.headers["Location"])
-            msg += "\nPlease provide non-redirecting URL"
-            error_utils.exit_with_message(msg)
-        if not self.r.ok:
-            error_utils.exit_with_message("%s returned HTTP error: %s" % (url, self._http_status()))
-        if not self._is_http():
-            error_utils.exit_with_message("%s is not HTML page" % url)
+            error_utils.exit_with_message("Start URL error: %s" % exception_type)
+        self._check_redirect_to_other_host(url)
+        self._check_error_code(url)
+        self._check_no_html_page(url)
 
     def _get_first_url(self):
         if config.initial_actions_file and config.initial_actions_url:
             return config.initial_actions_url
         else:
             return config.start_url
+
+    def _check_redirect_to_other_host(self, url):
+        redirect_url = self._redirect_url()
+        if not redirect_url:
+            return
+        if url_utils.hostname_from_url(url) == url_utils.hostname_from_url(redirect_url):
+            return
+        msg = "%s redirects to other host %s" % (url, redirect_url)
+        msg += "\nPlease provide non-redirecting URL"
+        error_utils.exit_with_message(msg)
+
+    def _check_error_code(self, url):
+        if self.r.ok:
+            return
+        status_code, status_name = self._http_status()
+        msg = "%s returned HTTP error: %s %s" % (url, status_code, status_name)
+        if status_code == 401:
+            msg += "\nHint: Use --http-auth option to provide HTTP authentication credentials"
+        error_utils.exit_with_message(msg)
+
+    def _check_no_html_page(self, url):
+        if not self._is_http():
+            error_utils.exit_with_message("%s is not HTML page" % url)
 
     def analyze_for_external_links_check(self, url):
         request_success, exception_name = self._http_get_only_headers(url, True, None)
@@ -112,7 +130,21 @@ class HTTPHeadersAnalyzer(object):
         return int(self.r.headers["Content-Length"]) if "Content-Length" in self.r.headers else None
 
     def _http_status(self):
-        return self.r.headers["Status"] if "Status" in self.r.headers else self.r.status_code
+        error_codes = {
+            400: "Bad Request",
+            401: "Unauthorized",
+            403: "Forbidden",
+            404: "Not Found",
+            408: "Request Timeout",
+            410: "Gone",
+            500: "Internal Server Error",
+            502: "Bad Gateway",
+            503: "Service Unavailable",
+            504: "Gateway Timeout"
+        }
+        code = self.r.status_code
+        name = error_codes[code] if code in error_codes else ""
+        return code, name
 
     def _is_http(self):
         return "Content-Type" in self.r.headers and self.r.headers["Content-Type"].startswith("text/html")
