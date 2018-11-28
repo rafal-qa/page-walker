@@ -72,7 +72,11 @@ class DatabaseAdmin(object):
             "app_version": version,
             "page_start": config.start_url,
             "page_host": self.page_host,
-            "time_start": time_utils.current_date_time()
+            "time_start": time_utils.current_date_time(),
+            "domain_blacklist": self._boolean_to_yes_no(config.domain_blacklist_enabled),
+            "custom_cookies": self._boolean_to_yes_no(config.custom_cookies_file),
+            "initial_actions": self._boolean_to_yes_no(config.initial_actions_file),
+            "http_basic_auth": self._boolean_to_yes_no(config.http_basic_auth_data)
         }
         for option, value in config_values.items():
             self.add_to_config(option, value)
