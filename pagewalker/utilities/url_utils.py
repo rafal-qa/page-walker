@@ -26,6 +26,8 @@ def relative_url(url):
     link_relative = url_parts.path
     if url_parts.query:
         link_relative += "?" + url_parts.query
+    if not link_relative:
+        link_relative = "/"
     return link_relative
 
 

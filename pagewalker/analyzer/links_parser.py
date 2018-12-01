@@ -32,7 +32,7 @@ class LinksParser(object):
         return set(no_hash)
 
     def _is_valid(self, link):
-        if not link or link == "/":
+        if not link:
             return False
         if link.startswith(("mailto:", "tel:")):
             return False
