@@ -13,8 +13,10 @@ class HTTPHeadersAnalyzer(object):
         self.r = None
 
     def analyze_for_chrome(self, url, cookies_data):
+        allow_redirects = False
+        verify_ssl = False
         cookie_jar = self._prepare_cookie_jar(cookies_data) if cookies_data else None
-        request_success, exception_type = self._http_get_only_headers(url, False, cookie_jar)
+        request_success, exception_type = self._http_get_only_headers(url, allow_redirects, verify_ssl, cookie_jar)
         if not request_success:
             return {
                 "status": "request_exception",
@@ -46,8 +48,10 @@ class HTTPHeadersAnalyzer(object):
 
     def check_valid_first_url(self):
         url = self._get_first_url()
+        allow_redirects = True
+        verify_ssl = False
         cookie_jar = self._prepare_cookie_jar(config.custom_cookies_data) if config.custom_cookies_data else None
-        request_success, exception_type = self._http_get_only_headers(url, True, cookie_jar)
+        request_success, exception_type = self._http_get_only_headers(url, allow_redirects, verify_ssl, cookie_jar)
         if not request_success:
             error_utils.exit_with_message("Start URL error: %s" % exception_type)
         self._check_redirect_to_other_host(url)
@@ -84,7 +88,10 @@ class HTTPHeadersAnalyzer(object):
             error_utils.exit_with_message("%s is not HTML page" % url)
 
     def analyze_for_external_links_check(self, url):
-        request_success, exception_name = self._http_get_only_headers(url, True, None)
+        allow_redirects = True
+        verify_ssl = True
+        cookie_jar = None
+        request_success, exception_name = self._http_get_only_headers(url, allow_redirects, verify_ssl, cookie_jar)
         if not request_success:
             return {
                 "redirect_url": None,
@@ -111,14 +118,14 @@ class HTTPHeadersAnalyzer(object):
                 optional_args[option] = single_cookie_data[option]
         return optional_args
 
-    def _http_get_only_headers(self, url, allow_redirects, cookie_jar):
+    def _http_get_only_headers(self, url, allow_redirects, verify_ssl, cookie_jar):
         headers = {"user-agent": config.user_agent}
         if config.http_basic_auth_data:
             headers["authorization"] = "Basic %s" % text_utils.base64_encode(config.http_basic_auth_data)
         hooks = {"response": lambda response, *args, **kwargs: response.close()}
         try:
             self.r = requests.get(url, headers=headers, hooks=hooks, timeout=self.timeout,
-                                  allow_redirects=allow_redirects, cookies=cookie_jar, verify=False)
+                                  allow_redirects=allow_redirects, cookies=cookie_jar, verify=verify_ssl)
             return True, None
         except RequestException as e:
             return False, type(e).__name__
