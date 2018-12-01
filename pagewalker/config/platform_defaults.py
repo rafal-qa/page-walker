@@ -15,7 +15,7 @@ def chrome_binary():
             error_utils.exit_with_message("Path to chrome.exe not found. Please provide custom file location.")
         return chrome
     else:
-        return "chromium-browser"
+        return "google-chrome"
 
 
 def _is_windows():

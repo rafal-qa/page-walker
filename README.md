@@ -54,9 +54,9 @@ Open terminal, navigate to directory with `page-walker` and run for example:
 ```
 ./page-walker -u http://example.com -p 5 --headless yes
 ```
-On Linux, default Chrome browser is set to `chromium-browser`. Maybe on your system is different and you need to provide this:
+On Linux, default Chrome browser is set to `google-chrome`. Maybe on your system is different and you need to provide this:
 ```
-./page-walker -u http://example.com -p 5 --chrome-binary google-chrome
+./page-walker -u http://example.com -p 5 --chrome-binary chromium-browser
 ```
 
 ### HTML reports
@@ -135,7 +135,7 @@ You can run Page Walker without any parameters. It's the same as double-clicking
 ### 3-level configuration
 
 1. Hard-coded defaults. Java and Chrome binary are dynamic and depends on operating system. On Windows location of installed Chrome is auto-detected.
-2. Configuration file `config/default.ini`. It overwrites hard-coded defaults. If parameter is empty or omitted, hard-coded default will be used. Use it to configure your environment: custom location of Chrome, Java, parameters that you do not plan to change.
+2. Configuration file `config/main.ini`. It overwrites hard-coded defaults. If parameter is empty or omitted, hard-coded default will be used. Use it to configure your environment: custom location of Chrome, Java, parameters that you do not plan to change.
 3. Command line arguments. It overwrites hard-coded defaults and configuration file parameters. Run with `-h` parameter to see all available options.
 
 ### Configurable parameters
@@ -154,7 +154,7 @@ You can run Page Walker without any parameters. It's the same as double-clicking
 | `--close-on-finish` | `chrome_close_on_finish` | yes | [yes/no] Close browser after finish. For debugging you can set to _no_ to interact with browser after app has finished running. |
 | `--chrome-port` | `chrome_debugging_port` | 9222 | Chrome remote debugger port number. To run multiple tests in parallel set different port for every instance. |
 | `--chrome-timeout` | `chrome_timeout` | 30 | Chrome connection timeout in seconds. How long to wait for `Load` event. |
-| `--chrome-binary` | `chrome_binary` | Auto-detected on Windows, `chromium-browser` otherwise. | Path to Chrome executable file. |
+| `--chrome-binary` | `chrome_binary` | Auto-detected on Windows, `google-chrome` otherwise. | Path to Chrome executable file. |
 | `--chrome-ignore-cert` | `chrome_ignore_cert` | no | [yes/no] Ignore SSL errors. Set to _yes_ if you want to test a website with invalid SSL certificate. |
 | `--validate` | `validator_enabled` | yes | [yes/no] Enable HTML validator. Set to _no_ if you don't have Java installed. |
 | `--check-css` | `validator_check_css` | yes | [yes/no] Check also inline CSS. Option has no effect if HTML validator is disabled. |
@@ -213,9 +213,9 @@ Before Chrome start, URL is checked using `HEAD` request. This is [standard HTTP
 
 Chrome logs are saved to `output/{date}_{time}/chrome_run.log`. Probably there is some Chrome issue, not related to Page Walker. For debugging purposes run Chrome from console. If `chrome_run.log` is empty, maybe you are trying to run Chrome in non-headless mode on remote server without GUI.
 
-#### ERROR: Program not found: chromium-browser
+#### ERROR: Chrome not found at location: google-chrome
 
-On Linux `chromium-browser` is default Chrome location. Add custom name for example: `--chrome-binary google-chrome`.
+On Linux `google-chrome` is default Chrome location. Add custom name for example: `--chrome-binary chromium-browser`. It may be necessary to specify the full path.
 
 #### [FAIL] Network.getResponseBody | No resource with given identifier found
 

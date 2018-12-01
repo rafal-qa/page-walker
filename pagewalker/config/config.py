@@ -43,4 +43,4 @@ domain_blacklist_file = path.join(domain_blacklist_dir, "current_list.txt")
 output_data = path.join(root, "output")
 current_data_dir = None
 current_data_subdir = None
-ini_file = path.join(root, "config", "default.ini")
+ini_file = path.join(root, "config", "main.ini")
