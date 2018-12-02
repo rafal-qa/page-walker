@@ -93,6 +93,8 @@ class DevtoolsRemoteDebug(object):
     def get_cookies_for_url(self, url):
         cookies_data = []
         result = self.debugger_socket.send("Network.getCookies", {"urls": [url]})
+        if not result or not result["cookies"]:
+            return cookies_data
         for cookie in result["cookies"]:
             cookies_data.append({
                 "name": cookie["name"],
