@@ -2,9 +2,18 @@
 
 *Zero-configuration test automation tool.*
 
-Page Walker crawls a website using Google Chrome browser and analyze data from Developer tools.
+Page Walker crawls a website using Google Chrome browser, analyze data from Developer tools and performs other tests.
 
-It also validates HTML code (before and after JavaScript execution) and generates interactive reports based on aggregated data. [See example report](https://rafal-qa.com/pagewalker-example-report/).
+The result is an interactive report - [see example report](https://rafal-qa.com/pagewalker-example-report/).
+
+### Types of detected defects
+
+* Network errors while loading page
+* Requests to blacklisted domains (malware)
+* JavaScript runtime exceptions
+* DevTools Console errors
+* Broken links, including links to blacklisted domains
+* HTML/CSS validation errors - before and after JavaScript execution
 
 ### Links
 
@@ -73,7 +82,7 @@ Page Walker is a cross-platform Python application. You can run it on any system
 * Python modules
   * `requests`
   * `websocket-client`
-* [v.Nu validator](https://github.com/validator/validator/releases) (18.8.29)
+* [v.Nu validator](https://github.com/validator/validator/releases)
 
 ### Installation
 
@@ -81,7 +90,7 @@ Page Walker is a cross-platform Python application. You can run it on any system
 ```
 pip install --upgrade --user -r requirements.txt
 ```
-* Download [v.Nu validator](https://github.com/validator/validator/releases) `vnu.jar_18.8.29.zip` and unpack to `lib` directory (`lib/vnu/vnu.jar`)
+* Download [v.Nu validator](https://github.com/validator/validator/releases) `vnu.jar_[version].zip` and unpack to `lib` directory (`lib/vnu/vnu.jar`)
 
 ### Running
 
@@ -126,6 +135,19 @@ Pay attention to `--list-only` argument.
 * If set to `yes`: only pages from list will be visited and no other pages. Option _maximum number of pages to visit_ has no effect.
 * If set to `no`: option _maximum number of pages to visit_ is taken into account. After visiting pages from list, pages found automatically will be visited.
 
+#### Login to restricted area
+
+You can login in different ways:
+1. Provide HTTP Basic authentication credentials
+2. Fill in the login form using _Initial actions_
+3. Add custom cookies with authentication data
+
+#### Other features
+
+* [Domain blacklist](docs/domain-blacklist.md) - simple malware detection
+* [Custom cookies](docs/custom-cookies.md) - add cookies to browser before test starts
+* [Initial actions](docs/initial-actions.md) - set text, click, submit before test starts
+
 # Configuration
 
 ### Interactive mode
@@ -140,8 +162,8 @@ You can run Page Walker without any parameters. It's the same as double-clicking
 
 ### Configurable parameters
 
-| Command_line argument | Config file parameter | Default value | Description |
-| --------------------- | --------------------- | ------------- | ------- |
+| Command_line argument | `config/main.ini` | Default value | Description |
+| --------------------- | ----------------- | ------------- | ----------- |
 | `-u` or `--url` | `start_url` | | URL of first page to visit, with `http(s)://`. |
 | `-p` or `--pages` | `max_number_pages` | 10 | Maximum number of pages to visit. |
 | `-l` or `--headless` | `chrome_headless` | no | [yes/no] Run Chrome in headless mode. |
@@ -156,14 +178,24 @@ You can run Page Walker without any parameters. It's the same as double-clicking
 | `--chrome-timeout` | `chrome_timeout` | 30 | Chrome connection timeout in seconds. How long to wait for `Load` event. |
 | `--chrome-binary` | `chrome_binary` | Auto-detected on Windows, `google-chrome` otherwise. | Path to Chrome executable file. |
 | `--chrome-ignore-cert` | `chrome_ignore_cert` | no | [yes/no] Ignore SSL errors. Set to _yes_ if you want to test a website with invalid SSL certificate. |
+| `--http-auth` | `http_basic_auth_data` | | HTTP Basic authentication credentials in format `login:password` |
+| `--cookies-file` | `custom_cookies_file` | | Config file with custom cookies definition, more: [Custom cookies](docs/custom-cookies.md) |
+| `--initial-actions-file` | `initial_actions_file` | | Config file with initial actions definition, more: [Initial actions](docs/initial-actions.md) |
+| `--initial-actions-url` | `initial_actions_url` | the same as `start_url` | URL of the page on which to perform initial actions. Option has no effect if `initial_actions_file` was not set. |
 | `--validate` | `validator_enabled` | yes | [yes/no] Enable HTML validator. Set to _no_ if you don't have Java installed. |
 | `--check-css` | `validator_check_css` | yes | [yes/no] Check also inline CSS. Option has no effect if HTML validator is disabled. |
 | `--validator-warnings` | `validator_show_warnings` | yes | [yes/no] Report also warnings (in addition to errors). Option has no effect if HTML validator is disabled. |
-| | `validator_vnu_jar` | `lib/vnu/vnu.jar` | Path to HTML validator JAR file. |
+| | `validator_vnu_jar` | `lib/vnu/vnu.jar` | Path to vNu HTML validator JAR file. |
 | `--java-binary` | `java_binary` | `Java` on Windows, `java` otherwise. | Path to Java executable file. To use custom Java unpacked to `lib` directory, set for example to `lib/jre{ver}/bin/java` |
 | | `java_stack_size` | 4096 | Java stack size [KB]. If you experience stack overflow errors while validating extremely large HTML page, increase it. |
+| `--check-links` | `check_external_links` | yes | [yes/no] Check HTTP response status of external links. |
+| | `check_external_links_timeout` | 10 | External links checking connection timeout in seconds. | 
+| `--domain-blacklist` | `domain_blacklist_enabled` | yes | [yes/no] Check if domains are blacklisted due to malware, scam. |
+| | `domain_blacklist_cache_expiry` | 24 | Domain blacklist cache expiry in hours. |
+| | `domain_blacklist_auto_update` | yes | Domain blacklist auto update. |
+| | `domain_blacklist_url` | [URL](https://raw.githubusercontent.com/rafal-qa/page-walker/master/lib/pagewalker/domain_lists.json) | URL with current domain lists. |
 | `-v` or `--version` | | | Show app and Python version and exit. |
-| `-h` or `--help` | | | Show all available options. |
+| `-h` or `--help` | | | Show all command line options. |
 
 ##### Boolean values
 
@@ -201,14 +233,6 @@ page-walker -u http://example.org/ -p 100 --headless yes --chrome-port 9223
 
 # Limitations and known problems
 
-#### ERROR: Config file 'config/default.ini' not found
-
-You got this error when program was run from different location than from folder with program. It will be changed soon.
-
-#### ERROR: Start URL returned HTTP error '405'
-
-Before Chrome start, URL is checked using `HEAD` request. This is [standard HTTP method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD) but some servers don't support it or block. In this case you got `405 Method Not Allowed` error. **[TODO] More technical details soon.**
-
 #### ERROR: Unable to connect to Chrome remote debugger (see log file for details)
 
 Chrome logs are saved to `output/{date}_{time}/chrome_run.log`. Probably there is some Chrome issue, not related to Page Walker. For debugging purposes run Chrome from console. If `chrome_run.log` is empty, maybe you are trying to run Chrome in non-headless mode on remote server without GUI.
@@ -225,12 +249,11 @@ This error does not stop program, only appears in the console. It occurs when Ch
 
 You can see this error in HTML report. Sometimes lots of them. When using DevTools manually it's equivalent to `(canceled)` error in _Network_ tab. The reasons may be different, and sometimes difficult to reproduce. [Read this great topic on StackOverflow](https://stackoverflow.com/questions/12009423/what-does-status-canceled-for-a-resource-mean-in-chrome-developer-tools). This can be related to some page issues, so it's worth analyzing.
 
-#### Can't automatically login
-
-For now you can't browse pages requiring login, closed sections. If website shows some annoying popup on every page (cookie info, data protection related message) you can't automatically click to hide this.
-
 # More information
 
+* [Domain blacklist](docs/domain-blacklist.md)
+* [Custom cookies](docs/custom-cookies.md)
+* [Initial actions](docs/initial-actions.md)
 * [How it works](docs/how-it-works.md)
 * [Changelog](CHANGELOG.md)
 
@@ -238,8 +261,6 @@ For now you can't browse pages requiring login, closed sections. If website show
 
 What improvements you can expect in future releases.
 * Developer guide, more technical details.
-* Run program from any location.
-* Login and other actions (click, etc.) before test start.
 * Skipped errors, known errors you won't fix. Manually created list of errors that will not be reported.
 
 ## License

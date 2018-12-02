@@ -3,7 +3,7 @@ import struct
 from pagewalker.utilities import console_utils
 
 
-version_info = (1, 0, 1)
+version_info = (1, 1, 0)
 version = '.'.join(str(c) for c in version_info)
 
 

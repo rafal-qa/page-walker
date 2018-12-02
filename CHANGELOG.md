@@ -1,5 +1,27 @@
 # Changelog
 
+## v1.1.0 (2018-12-02)
+
+#### New features
+
+* Broken external links detection.
+* Custom cookies.
+* Initial actions - set text, click, submit before test starts.
+* HTTP Basic authentication.
+* Domain blacklist (malware domains).
+
+#### Improvements
+
+* Run program from any location.
+* Now checking HTTP headers with GET request (without downloading body), not HEAD (some servers don't support it or block).
+* `google-chrome` is now default browser on Linux.
+* Other minor improvements.
+
+#### Bugfixes
+
+* Handling URLs with no scheme: `//example.com`
+* Duplicated home page links: `example.com/` and `example.com`
+
 ## v1.0.1 (2018-10-23)
 
 #### Improvements
