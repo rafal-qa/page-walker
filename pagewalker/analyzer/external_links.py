@@ -1,3 +1,4 @@
+from multiprocessing.dummy import Pool as ThreadPool
 from . import http_headers_analyzer
 from pagewalker.config import config
 
@@ -5,6 +6,7 @@ from pagewalker.config import config
 class ExternalLinks(object):
     def __init__(self):
         self.db_conn = None
+        self.links_status_to_save = {}
 
     def set_db_connection(self, db_connection):
         self.db_conn = db_connection
@@ -37,16 +39,15 @@ class ExternalLinks(object):
     def check_links(self):
         if not config.check_external_links:
             return
-        links = self._get_unchecked_links()
-        unchecked_count = len(links)
+        links_data = self._get_unchecked_links()
+        unchecked_count = len(links_data)
         if not unchecked_count:
             return
         word_link = "link" if unchecked_count == 1 else "links"
-        print("[INFO] Checking %s new external %s" % (unchecked_count, word_link))
-        http_headers = http_headers_analyzer.HTTPHeadersAnalyzer(config.check_external_links_timeout)
-        for link_data in links:
-            result = http_headers.analyze_for_external_links_check(link_data["url"])
-            self._set_link_status(link_data["id"], result["redirect_url"], result["http_code"], result["error_name"])
+        print("[INFO] Checking %s new external %s in max. %s threads" %
+              (unchecked_count, word_link, config.check_external_links_threads))
+        self._check_links_in_threads(links_data)
+        self._set_links_status()
 
     def _get_unchecked_links(self):
         c = self.db_conn.cursor()
@@ -54,21 +55,34 @@ class ExternalLinks(object):
             "SELECT id, url FROM external_links_url WHERE checked IS NULL"
         )
         result = c.fetchall()
-        links = []
+        links_data = []
         for row in result:
             link_id, url = row
             record = {
                 "id": link_id,
                 "url": url
             }
-            links.append(record)
-        return links
+            links_data.append(record)
+        return links_data
 
-    def _set_link_status(self, link_id, redirect_url, http_status, error_name):
+    def _check_links_in_threads(self, links_data):
+        pool = ThreadPool(config.check_external_links_threads)
+        pool.map(self._check_single_link, links_data)
+        pool.close()
+        pool.join()
+
+    def _check_single_link(self, link_data):
+        http_headers = http_headers_analyzer.HTTPHeadersAnalyzer(config.check_external_links_timeout)
+        link_id = link_data["id"]
+        self.links_status_to_save[link_id] = http_headers.analyze_for_external_links_check(link_data["url"])
+
+    def _set_links_status(self):
         c = self.db_conn.cursor()
-        c.execute(
-            "UPDATE external_links_url SET checked = 1, "
-            "redirect_url = ?, http_status = ?, exception_name = ? WHERE id = ?",
-            (redirect_url, http_status, error_name, link_id)
-        )
+        for link_id, link_data in self.links_status_to_save.items():
+            c.execute(
+                "UPDATE external_links_url SET checked = 1, "
+                "redirect_url = ?, http_status = ?, exception_name = ? WHERE id = ?",
+                (link_data["redirect_url"], link_data["http_code"], link_data["error_name"], link_id)
+            )
         self.db_conn.commit()
+        self.links_status_to_save = {}

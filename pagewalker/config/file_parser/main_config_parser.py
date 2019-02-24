@@ -22,7 +22,7 @@ class MainConfigParser(INIReader):
             ],
             "positive_non_zero_integer": [
                 "max_number_pages", "chrome_debugging_port", "chrome_timeout", "java_stack_size",
-                "check_external_links_timeout"
+                "check_external_links_timeout", "check_external_links_threads"
             ],
             "positive_integer": [
                 "wait_time_after_load", "domain_blacklist_cache_expiry"

@@ -34,6 +34,7 @@ java_binary = platform_defaults.java_binary()
 java_stack_size = 4096
 check_external_links = True
 check_external_links_timeout = 10
+check_external_links_threads = 4
 domain_blacklist_enabled = True
 domain_blacklist_cache_expiry = 24
 domain_blacklist_url = "https://raw.githubusercontent.com/rafal-qa/page-walker/master/lib/pagewalker/domain_lists.json"
