@@ -1,6 +1,4 @@
-tools/
 output/
 temp/
 lib/vnu/
-config/domain_blacklist
 *.pyc

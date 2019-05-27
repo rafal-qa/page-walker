@@ -1,5 +1,7 @@
 import platform
 import struct
+import os
+from os.path import dirname
 from pagewalker.utilities import console_utils
 
 
@@ -12,3 +14,9 @@ def print_version():
     print("Page Walker: %s" % version)
     print("Python: %s (%s-bit)" % (platform.python_version(), arch))
     console_utils.finish(True)
+
+
+def get_project_root():
+    file_path = os.path.abspath(__file__)
+    root_path = dirname(dirname(dirname(file_path)))
+    return root_path

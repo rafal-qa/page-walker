@@ -1,8 +1,9 @@
 from os import path
-from pagewalker.config import platform_defaults, root_path
+from pagewalker import get_project_root
+from pagewalker.config import platform_defaults
 
 
-root = root_path.get()
+root = get_project_root()
 start_url = None
 max_number_pages = 10
 pages_list_file = None
@@ -39,7 +40,7 @@ domain_blacklist_enabled = True
 domain_blacklist_cache_expiry = 24
 domain_blacklist_url = "https://raw.githubusercontent.com/rafal-qa/page-walker/master/lib/pagewalker/domain_lists.json"
 domain_blacklist_auto_update = True
-domain_blacklist_dir = path.join(root, "config", "domain_blacklist")
+domain_blacklist_dir = path.join(root, "temp", "domain_blacklist")
 domain_blacklist_file = path.join(domain_blacklist_dir, "current_list.txt")
 output_data = path.join(root, "output")
 current_data_dir = None

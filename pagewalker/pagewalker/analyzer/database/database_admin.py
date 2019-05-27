@@ -49,7 +49,7 @@ class DatabaseAdmin(object):
         self.conn = sqlite3.connect(sqlite_file)
 
     def _create_empty_tables(self):
-        schema_file = path.join(config.root, "lib", "pagewalker", "database.sql")
+        schema_file = path.join(config.root, "pagewalker", "resources", "database.sql")
         with open(schema_file) as f:
             sql_data = f.read()
         c = self.conn.cursor()

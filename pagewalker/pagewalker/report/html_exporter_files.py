@@ -17,7 +17,7 @@ class HtmlExporterFiles(object):
     def _copy_layout(self):
         if path.exists(self.report_dir):
             shutil.rmtree(self.report_dir)
-        template_dir = path.join(config.root, "lib", "pagewalker", "report_template")
+        template_dir = path.join(config.root, "pagewalker", "resources", "report_template")
         shutil.copytree(template_dir, self.report_dir)
 
     def save_json(self, db_data, data_name):

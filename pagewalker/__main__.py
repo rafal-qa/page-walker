@@ -1,6 +1,6 @@
 import argparse
-from pagewalker import prepare_directories, print_version
-from pagewalker.utilities import console_utils, error_utils
+from pagewalker import print_version
+from pagewalker.utilities import console_utils, error_utils, prepare_directories
 from pagewalker.analyzer import analyzer, http_headers_analyzer
 from pagewalker.analyzer.blacklist import blacklist_downloader
 from pagewalker.report import report

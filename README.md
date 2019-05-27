@@ -94,9 +94,9 @@ pip install --upgrade --user -r requirements.txt
 
 ### Running
 
-Open console, navigate to directory with `page-walker.py` and run for example:
+Open console, navigate to project root directory and run (for example):
 ```
-python page-walker.py -u http://example.com -p 5
+python pagewalker --url http://example.com --pages 5
 ```
 
 # Features
@@ -208,7 +208,7 @@ For boolean values (yes/no) you can also use:
 Replace `page-walker` with:
 * `.\page-walker.exe` when running Windows stand-alone version
 * `./page-walker` when running Linux stand-alone version
-* `python page-walker.py` when running from source code
+* `python pagewalker` when running from source code
 
 Visit max. 100 pages in headless mode
 ```
