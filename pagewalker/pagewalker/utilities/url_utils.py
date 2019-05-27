@@ -1,7 +1,4 @@
-try:
-    from urllib.parse import urlsplit, urljoin  # Python 3
-except ImportError:
-    from urlparse import urlsplit, urljoin  # Python 2
+from urllib.parse import urlsplit, urljoin
 
 
 def hostname_from_url(url):

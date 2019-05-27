@@ -1,8 +1,4 @@
-try:
-    import winreg  # Python 3
-except ImportError:
-    import _winreg as winreg  # Python 2
-    FileNotFoundError = WindowsError
+import winreg
 
 
 class WindowsRegistry(object):

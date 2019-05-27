@@ -78,11 +78,13 @@ Page Walker is a cross-platform Python application. You can run it on any system
 
 ### Requirements
 
-* Python (at least 2.7 or 3.5)
+* Python 3 (Python 2 is not supported)
 * Python modules
   * `requests`
   * `websocket-client`
 * [v.Nu validator](https://github.com/validator/validator/releases)
+
+If you have both Python 2 and 3 installed, you may need to use `pip3` and `python3` commands.
 
 ### Installation
 

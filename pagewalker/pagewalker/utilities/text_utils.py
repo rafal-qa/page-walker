@@ -23,10 +23,11 @@ def camelcase_to_underscore(text):
 
 
 def base64_encode(data):
-    try:
-        data_bytes = bytes(data, encoding='utf-8')  # Python 3
-    except TypeError:
-        data_bytes = bytes(data)  # Python 2
+    data_bytes = bytes(data, encoding='utf-8')
     base64_bytes = base64.b64encode(data_bytes)
     data_string = base64_bytes.decode()
     return data_string
+
+
+def bytes_to_string(data):
+    return data.decode('utf-8', 'ignore').strip()

@@ -1,7 +1,4 @@
-try:
-    from html.parser import HTMLParser  # Python 3
-except ImportError:
-    from HTMLParser import HTMLParser  # Python 2
+from html.parser import HTMLParser
 
 
 class MyHtmlParser(HTMLParser):

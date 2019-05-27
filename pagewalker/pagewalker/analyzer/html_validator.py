@@ -3,7 +3,7 @@ import re
 import os
 from os import path
 from subprocess import Popen, PIPE
-from pagewalker.utilities import filesystem_utils, error_utils
+from pagewalker.utilities import filesystem_utils, error_utils, text_utils
 from pagewalker.config import config
 
 
@@ -43,12 +43,11 @@ class HtmlValidator(object):
             "-jar", config.validator_vnu_jar,
             "--version"
         ]
-        p = Popen(command_parts, stdout=PIPE, stderr=PIPE)
-        (out, err) = p.communicate()
-        if p.returncode == 0:
-            return self._popen_decode(out)
+        exec_result = self._exec_command(command_parts)
+        if exec_result["code"] == 0:
+            return exec_result["out"]
         else:
-            error_utils.exit_with_message("v.Nu failed | %s" % self._popen_decode(err))
+            error_utils.exit_with_message("v.Nu failed | %s" % exec_result["err"])
 
     def set_db_connection(self, db_connection):
         self.db_conn = db_connection
@@ -84,13 +83,21 @@ class HtmlValidator(object):
 
     # option "exit-zero-always" was used, but still need to read from "stderr" not "stdout" (this is how v.Nu works)
     def _get_vnu_json_result(self):
-        p = Popen(self.vnu_command_parts, stdout=PIPE, stderr=PIPE)
-        (out, err) = p.communicate()
-        if p.returncode == 0:
-            return self._popen_decode(err)
+        exec_result = self._exec_command(self.vnu_command_parts)
+        if exec_result["code"] == 0:
+            return exec_result["err"]
         else:
-            msg = "v.Nu failed\n%s %s" % (self._popen_decode(out), self._popen_decode(err))
+            msg = "v.Nu failed\n%s %s" % (exec_result["out"], exec_result["err"])
             error_utils.exit_with_message(msg)
+
+    def _exec_command(self, command_parts):
+        p = Popen(command_parts, stdout=PIPE, stderr=PIPE)
+        (out, err) = p.communicate()
+        return {
+            "code": p.returncode,
+            "out": text_utils.bytes_to_string(out),
+            "err": text_utils.bytes_to_string(err)
+        }
 
     def _save_result_to_database(self, logs):
         c = self.db_conn.cursor()
@@ -175,6 +182,3 @@ class HtmlValidator(object):
 
     def get_vnu_version(self):
         return self.vnu_version
-
-    def _popen_decode(self, output):
-        return output.decode('utf-8', 'ignore').strip()

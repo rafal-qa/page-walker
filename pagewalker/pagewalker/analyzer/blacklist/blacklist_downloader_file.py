@@ -15,15 +15,14 @@ class BlacklistDownloaderFile(object):
         file_content = self.file_names(list_name)[0]
         if not path.isfile(file_content):
             return False
-        data_bytes = self._read_content(file_content)
-        return self._as_string(data_bytes)
+        return self._read_content(file_content)
 
     def update_cache(self, url, list_name):
         if self._is_cache_valid(list_name):
             return True
-        data_bytes = self._download_file(url)
-        if len(data_bytes) > 0:
-            self._save_to_cache(list_name, data_bytes)
+        data = self._download_file(url)
+        if len(data) > 0:
+            self._save_to_cache(list_name, data)
             return True
         return False
 
@@ -36,13 +35,13 @@ class BlacklistDownloaderFile(object):
         return not self._cache_expired(updated)
 
     def _read_content(self, file_name):
-        with open(file_name, "rb") as f:
+        with open(file_name, "r") as f:
             return f.read()
 
-    def _save_to_cache(self, list_name, data_bytes):
+    def _save_to_cache(self, list_name, data):
         file_content, file_updated = self.file_names(list_name)
-        with open(file_content, "wb") as f:
-            f.write(data_bytes)
+        with open(file_content, "w") as f:
+            f.write(data)
         with open(file_updated, "w") as f:
             timestamp = str(int(time.time()))
             f.write(timestamp)
@@ -58,7 +57,7 @@ class BlacklistDownloaderFile(object):
             print("[FAIL] Unable to download file %s (HTTP status: %s)" % (url, r.status_code))
             return ""
         print("[ OK ] Downloaded file %s" % url)
-        return r.content
+        return r.text
 
     def file_names(self, file_name):
         file_content = path.join(self.cache_dir, "%s.txt" % file_name)
@@ -68,6 +67,3 @@ class BlacklistDownloaderFile(object):
     def _cache_expired(self, updated):
         cache_expiry_seconds = config.domain_blacklist_cache_expiry * 3600
         return time.time() - int(updated) > cache_expiry_seconds
-
-    def _as_string(self, data_bytes):
-        return data_bytes.decode('utf-8', 'ignore')
