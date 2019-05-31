@@ -14,6 +14,9 @@ class DevtoolsRemoteDebug(object):
         self.debugger_socket = socket.DevtoolsSocket()
         self.actions = remote_debug_actions.RemoteDebugActions(self.debugger_socket)
 
+        if not config.chrome_binary:
+            error_utils.chrome_not_found()
+
         window_size_command = config.window_size.replace("x", ",")
         command_parts = [
             config.chrome_binary,
@@ -37,11 +40,7 @@ class DevtoolsRemoteDebug(object):
         try:
             Popen(self.command_parts, stdout=chrome_log, stderr=chrome_log)
         except OSError:
-            message = "Chrome not found at location: %s" % config.chrome_binary
-            message += "\nFind location of Chrome/Chromium in your system and configure it in:"
-            message += "\n* %s file (option: chrome_binary)" % config.ini_file
-            message += "\n* or command line parameter --chrome-binary"
-            error_utils.exit_with_message(message)
+            error_utils.chrome_not_found(config.chrome_binary)
         self._print_start_message()
         self.debugger_socket.connect_to_remote_debugger()
         self._enable_features()
