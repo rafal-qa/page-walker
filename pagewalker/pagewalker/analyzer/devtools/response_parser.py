@@ -1,7 +1,7 @@
 from pagewalker.utilities import text_utils
 
 
-class DevtoolsResponseParser(object):
+class ResponseParser(object):
     def __init__(self):
         self.general = {
             "time_start": None,

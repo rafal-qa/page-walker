@@ -1,59 +1,25 @@
-from os import path
-from subprocess import Popen
 from . import socket, remote_debug_actions
-from .. import initial_actions
-from pagewalker.utilities import filesystem_utils, error_utils, text_utils
+from pagewalker.analyzer import initial_actions
+from pagewalker.analyzer.browser import chrome_desktop
+from pagewalker.utilities import text_utils
 from pagewalker.config import config
 
 
-class DevtoolsRemoteDebug(object):
+class RemoteDebug(object):
     def __init__(self):
-        subdir = "port_%s" % config.chrome_debugging_port
-        self.profile_dir = path.join(config.chrome_data_dir, subdir)
-        self.log_file = path.join(config.current_data_dir, "chrome_run.log")
         self.debugger_socket = socket.DevtoolsSocket()
         self.actions = remote_debug_actions.RemoteDebugActions(self.debugger_socket)
-
-        if not config.chrome_binary:
-            error_utils.chrome_not_found()
-
-        window_size_command = config.window_size.replace("x", ",")
-        command_parts = [
-            config.chrome_binary,
-            "--remote-debugging-port=%s" % config.chrome_debugging_port,
-            "--window-size=%s" % window_size_command,
-            "--no-first-run",
-            "--user-data-dir=%s" % self.profile_dir
-        ]
-        if config.chrome_headless:
-            command_parts.append("--headless")
-            command_parts.append("--disable-gpu")
-        if config.chrome_ignore_cert:
-            command_parts.append("--ignore-certificate-errors")
-
-        self.command_parts = command_parts
+        self.browser = chrome_desktop.ChromeDesktop()
 
     def start_session(self):
         self.debugger_socket.close_existing_session()
-        filesystem_utils.clean_directory(self.profile_dir)
-        chrome_log = open(self.log_file, "w")
-        try:
-            Popen(self.command_parts, stdout=chrome_log, stderr=chrome_log)
-        except OSError:
-            error_utils.chrome_not_found(config.chrome_binary)
-        self._print_start_message()
+        self.browser.run()
         self.debugger_socket.connect_to_remote_debugger()
         self._enable_features()
         self._set_custom_cookies()
         self._set_http_auth_header()
         self._initial_actions()
         self._update_user_agent()
-
-    def _print_start_message(self):
-        print("")
-        print("Running Chrome in remote debugger mode")
-        print("Saving output to log file: %s" % self.log_file)
-        print("")
 
     def _enable_features(self):
         self.debugger_socket.send("Network.enable")

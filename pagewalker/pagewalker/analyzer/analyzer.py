@@ -7,41 +7,39 @@ from pagewalker.config import config
 
 class Analyzer(object):
     def __init__(self):
-        self.devtools_remote = remote_debug.DevtoolsRemoteDebug()
+        self.devtools_remote = remote_debug.RemoteDebug()
         self.validator = html_validator.HtmlValidator()
         self.db_admin = database_admin.DatabaseAdmin()
         self.external_links = external_links.ExternalLinks()
 
     def start_new_analysis(self):
-        db_admin = self.db_admin
-        db_admin.create_clean_database()
-        db_connection = db_admin.get_connection()
+        self.db_admin.create_clean_database()
+        db_connection = self.db_admin.get_connection()
         self.validator.set_db_connection(db_connection)
         self.external_links.set_db_connection(db_connection)
 
-        devtools_remote = self.devtools_remote
-        devtools_remote.start_session()
-        self._save_chrome_version(db_admin, devtools_remote)
-        db_admin.add_to_config("vnu_version", self.validator.get_vnu_version())
+        self.devtools_remote.start_session()
+        self._save_chrome_version()
+        self.db_admin.add_to_config("vnu_version", self.validator.get_vnu_version())
 
         if config.pages_list_file and config.pages_list_only:
-            max_number_pages = db_admin.get_pages_list_count() + 1
+            max_number_pages = self.db_admin.get_pages_list_count() + 1
         else:
             max_number_pages = config.max_number_pages
 
         for i in range(0, max_number_pages):
-            next_page = db_admin.get_next_page()
+            next_page = self.db_admin.get_next_page()
             if not next_page:
                 break
             self._analyze_page(next_page["id"], next_page["url"])
             self.external_links.check_links()
             self.validator.validate_if_full_queue()
 
-        devtools_remote.end_session()
+        self.devtools_remote.end_session()
         self.validator.validate()
         if config.domain_blacklist_enabled:
             blacklist_checker.BlacklistChecker(db_connection).check()
-        db_admin.close_database()
+        self.db_admin.close_database()
 
     def _analyze_page(self, page_id, url):
         print("%s. %s" % (page_id, url))
@@ -57,18 +55,17 @@ class Analyzer(object):
         if not continue_with_chrome:
             return
 
-        devtools_remote = self.devtools_remote
-        messages = devtools_remote.open_url(url)
+        messages = self.devtools_remote.open_url(url)
         if not messages:
             return
 
-        devtools_parser = response_parser.DevtoolsResponseParser()
+        devtools_parser = response_parser.ResponseParser()
         devtools_parser.append_response(messages)
 
         if config.scroll_after_load:
-            devtools_remote.actions.scroll_to_bottom()
+            self.devtools_remote.actions.scroll_to_bottom()
 
-        messages = devtools_remote.wait(config.wait_time_after_load)
+        messages = self.devtools_remote.wait(config.wait_time_after_load)
         devtools_parser.append_response(messages)
 
         parsed_logs = devtools_parser.get_logs()
@@ -126,7 +123,7 @@ class Analyzer(object):
         external = links.filter_external(all_links)
         self.external_links.add_links(db_writer.get_page_id(), external)
 
-    def _save_chrome_version(self, db_admin, devtools_remote):
-        version = devtools_remote.get_version()
-        db_admin.add_to_config("chrome_version", version["product"])
-        db_admin.add_to_config("devtools_protocol", version["protocolVersion"])
+    def _save_chrome_version(self):
+        version = self.devtools_remote.get_version()
+        self.db_admin.add_to_config("chrome_version", version["product"])
+        self.db_admin.add_to_config("devtools_protocol", version["protocolVersion"])
