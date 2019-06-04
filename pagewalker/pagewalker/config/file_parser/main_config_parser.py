@@ -28,7 +28,7 @@ class MainConfigParser(INIReader):
                 "wait_time_after_load", "domain_blacklist_cache_expiry"
             ],
             "boolean": [
-                "scroll_after_load", "keep_previous_data", "chrome_headless", "chrome_close_on_finish",
+                "scroll_after_load", "chrome_headless", "chrome_close_on_finish",
                 "chrome_ignore_cert", "validator_enabled", "validator_check_css", "validator_show_warnings",
                 "pages_list_only", "check_external_links", "domain_blacklist_enabled", "domain_blacklist_auto_update"
             ],

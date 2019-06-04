@@ -10,7 +10,6 @@ pages_list_file = None
 pages_list_only = True
 wait_time_after_load = 1
 scroll_after_load = True
-keep_previous_data = True
 window_size = "1366x768"
 chrome_headless = False
 chrome_close_on_finish = True

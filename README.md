@@ -173,7 +173,6 @@ You can run Page Walker without any parameters. It's the same as double-clicking
 | `--list-only` | `pages_list_only` | yes | [yes/no] Visit all and only pages from file, regardless of _maximum number of pages_ value. Option has no effect if file with pages list is not set. |
 | `--wait-after` | `wait_time_after_load` | 1 | Wait time (in seconds) after page was loaded (browser received `Load` event). Even after `Load` event the browser usually downloads some data so it's better to set it for 1-3 seconds.
 | `--scroll-after` | `scroll_after_load` | yes | [yes/no] Scroll to bottom of page after page was loaded, before _wait time_. While scrolling browser can receive more events and data to analyze. |
-| `--keep-previous` | `keep_previous_data` | yes | [yes/no] Keep data from previous program run. If _no_, `output` directory will be cleaned before run. |
 | `--window-size` | `window_size` | 1366x768 | Size of browser window. |
 | `--close-on-finish` | `chrome_close_on_finish` | yes | [yes/no] Close browser after finish. For debugging you can set to _no_ to interact with browser after app has finished running. |
 | `--chrome-port` | `chrome_debugging_port` | 9222 | Chrome remote debugger port number. To run multiple tests in parallel set different port for every instance. |
@@ -185,17 +184,17 @@ You can run Page Walker without any parameters. It's the same as double-clicking
 | `--initial-actions-file` | `initial_actions_file` | | Config file with initial actions definition, more: [Initial actions](docs/initial-actions.md) |
 | `--initial-actions-url` | `initial_actions_url` | the same as `start_url` | URL of the page on which to perform initial actions. Option has no effect if `initial_actions_file` was not set. |
 | `--validate` | `validator_enabled` | yes | [yes/no] Enable HTML validator. Set to _no_ if you don't have Java installed. |
-| `--check-css` | `validator_check_css` | yes | [yes/no] Check also inline CSS. Option has no effect if HTML validator is disabled. |
-| `--validator-warnings` | `validator_show_warnings` | yes | [yes/no] Report also warnings (in addition to errors). Option has no effect if HTML validator is disabled. |
-| | `validator_vnu_jar` | `lib/vnu/vnu.jar` | Path to vNu HTML validator JAR file. |
-| `--java-binary` | `java_binary` | `Java` on Windows, `java` otherwise. | Path to Java executable file. To use custom Java unpacked to `lib` directory, set for example to `lib/jre{ver}/bin/java` |
-| | `java_stack_size` | 4096 | Java stack size [KB]. If you experience stack overflow errors while validating extremely large HTML page, increase it. |
+| n/a | `validator_check_css` | yes | [yes/no] Check also inline CSS. Option has no effect if HTML validator is disabled. |
+| n/a | `validator_show_warnings` | yes | [yes/no] Report also warnings (in addition to errors). Option has no effect if HTML validator is disabled. |
+| n/a | `validator_vnu_jar` | `lib/vnu/vnu.jar` | Path to vNu HTML validator JAR file. |
+| n/a | `java_binary` | `Java` on Windows, `java` otherwise. | Path to Java executable file. To use custom Java unpacked to `lib` directory, set for example to `lib/jre{ver}/bin/java` |
+| n/a | `java_stack_size` | 4096 | Java stack size [KB]. If you experience stack overflow errors while validating extremely large HTML page, increase it. |
 | `--check-links` | `check_external_links` | yes | [yes/no] Check HTTP response status of external links. |
-| | `check_external_links_timeout` | 10 | External links checking connection timeout in seconds. | 
+| n/a | `check_external_links_timeout` | 10 | External links checking connection timeout in seconds. | 
 | `--domain-blacklist` | `domain_blacklist_enabled` | yes | [yes/no] Check if domains are blacklisted due to malware, scam. |
-| | `domain_blacklist_cache_expiry` | 24 | Domain blacklist cache expiry in hours. |
-| | `domain_blacklist_auto_update` | yes | Domain blacklist auto update. |
-| | `domain_blacklist_url` | [URL](https://raw.githubusercontent.com/rafal-qa/page-walker/master/lib/pagewalker/domain_lists.json) | URL with current domain lists. |
+| n/a | `domain_blacklist_cache_expiry` | 24 | Domain blacklist cache expiry in hours. |
+| n/a | `domain_blacklist_auto_update` | yes | Domain blacklist auto update. |
+| n/a | `domain_blacklist_url` | [URL](https://raw.githubusercontent.com/rafal-qa/page-walker/master/lib/pagewalker/domain_lists.json) | URL with current domain lists. |
 | `-v` or `--version` | | | Show app and Python version and exit. |
 | `-h` or `--help` | | | Show all command line options. |
 
@@ -222,9 +221,9 @@ Visit all pages from list in file with no HTML validation
 page-walker -u http://example.com/ --pages-list config/pages.txt --validate no
 ```
 
-Run with custom Java (downloaded to `lib` directory) and Chrome (installed Beta version on Linux)
+Run with custom Chrome (installed Beta version on Linux)
 ```
-page-walker -u http://example.com/ --java-binary lib/jdk-10.0.1/bin/java --chrome-binary google-chrome-beta
+page-walker -u http://example.com/ --chrome-binary google-chrome-beta
 ```
 
 Run 2 website tests in parallel (run commands in separate consoles)

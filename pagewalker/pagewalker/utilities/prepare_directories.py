@@ -9,8 +9,6 @@ class PrepareDirectories(object):
         self.current = path.join(config.output_data, self.current_subdir)
 
     def create(self):
-        if not config.keep_previous_data:
-            filesystem_utils.clean_directory(config.output_data)
         filesystem_utils.try_make_dir(self.current)
         config.current_data_dir = self.current
         config.current_data_subdir = self.current_subdir

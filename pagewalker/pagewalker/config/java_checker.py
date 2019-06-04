@@ -19,6 +19,7 @@ class JavaChecker(object):
 
     def _print_warning(self):
         msg = "Java not found at location: %s" % config.java_binary
-        msg += "\nDisabling HTML Validator."
-        msg += "\nInstall/configure Java in your system to use HTML Validator."
+        msg += "\nHTML Validation will be omitted."
+        msg += "\nInstall Java to use HTML Validator or disable it to not show this message."
+        msg += "\nYou can provide custom Java location in file: %s (option 'java_binary')" % config.ini_file
         error_utils.show_warning(msg)
