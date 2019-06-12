@@ -1,81 +1,58 @@
-from . import socket, remote_debug_actions
+from . import devtools_protocol, remote_debug_actions
 from pagewalker.analyzer import initial_actions
-from pagewalker.analyzer.browser import chrome_desktop
-from pagewalker.utilities import text_utils
+from .browser import browser_factory
+from pagewalker.utilities import error_utils
 from pagewalker.config import config
 
 
 class RemoteDebug(object):
     def __init__(self):
-        self.debugger_socket = socket.DevtoolsSocket()
-        self.actions = remote_debug_actions.RemoteDebugActions(self.debugger_socket)
-        self.browser = chrome_desktop.ChromeDesktop()
+        self._devtools_protocol = devtools_protocol.DevtoolsProtocol()
+        browser_class = browser_factory.get_new_browser()
+        self._browser = browser_class(self._devtools_protocol)
 
     def start_session(self):
-        self.debugger_socket.close_existing_session()
-        self.browser.run()
-        self.debugger_socket.connect_to_remote_debugger()
-        self._enable_features()
-        self._set_custom_cookies()
-        self._set_http_auth_header()
-        self._initial_actions()
-        self._update_user_agent()
+        self._close_existing_session()
+        self._browser.connect()
+        self._browser.configure()
+        self._apply_initial_actions()
+        self._update_requests_user_agent()
 
-    def _enable_features(self):
-        self.debugger_socket.send("Network.enable")
-        self.debugger_socket.send("Log.enable")
-        self.debugger_socket.send("Page.enable")
-        self.debugger_socket.send("Page.setDownloadBehavior", {"behavior": "deny"})  # EXPERIMENTAL
-        self.debugger_socket.send("DOM.enable")
-        self.debugger_socket.send("Runtime.enable")
+    def _close_existing_session(self):
+        browser_data = self._devtools_protocol.browser_data
+        if browser_data:
+            browser_class = browser_factory.get_running_browser(browser_data)
+            browser = browser_class(self._devtools_protocol)
+            browser.close_previously_unclosed()
 
-    def _set_custom_cookies(self):
-        if config.custom_cookies_data:
-            for single_cookie_data in config.custom_cookies_data:
-                self._set_cookie(single_cookie_data)
-
-    def _set_cookie(self, cookie_data):
-        # "At least one of the url and domain needs to be specified"
-        if "domain" not in cookie_data:
-            cookie_data["url"] = config.start_url
-        # .ini file is case-insensitive, but DevTools protocol requires "httpOnly"
-        if "httponly" in cookie_data:
-            cookie_data["httpOnly"] = cookie_data.pop("httponly")
-        self.debugger_socket.send("Network.setCookie", cookie_data)
-
-    def _set_http_auth_header(self):
-        if config.http_basic_auth_data:
-            headers = {"authorization": "Basic %s" % text_utils.base64_encode(config.http_basic_auth_data)}
-            self.debugger_socket.send("Network.setExtraHTTPHeaders", {"headers": headers})
-
-    def _initial_actions(self):
+    def _apply_initial_actions(self):
         if config.initial_actions_data:
-            initial_actions.InitialActions(self).execute()
+            initial_actions.InitialActions(self, self._devtools_protocol)
 
-    def _update_user_agent(self):
-        config.user_agent = self.get_version()["userAgent"]
-
-    def get_cookies_for_url(self, url):
-        cookies_data = []
-        result = self.debugger_socket.send("Network.getCookies", {"urls": [url]})
-        if not result or not result["cookies"]:
-            return cookies_data
-        for cookie in result["cookies"]:
-            cookies_data.append({
-                "name": cookie["name"],
-                "value": cookie["value"],
-                "domain": cookie["domain"],
-                "path": cookie["path"]
-            })
-        return cookies_data
+    def _update_requests_user_agent(self):
+        config.requests_user_agent = self._browser.user_agent
 
     def end_session(self):
-        self.debugger_socket.close_page_connection()
-        if config.chrome_headless or config.chrome_close_on_finish:
-            self.debugger_socket.send_browser_close()
+        if config.chrome_close_on_finish:
+            self._devtools_protocol.close_tab()
+            self._browser.close()
+        else:
+            self._show_keep_open_warning()
+
+    def _show_keep_open_warning(self):
+        msg = "Keeping browser and remote debugger open"
+        msg += "\nYou can manually inspect it on http://localhost:%s" % config.chrome_debugging_port
+        error_utils.show_warning(msg)
+
+    def scroll_to_bottom(self):
+        actions = remote_debug_actions.RemoteDebugActions(self._devtools_protocol)
+        actions.scroll_to_bottom()
+
+    def get_cookies(self, url):
+        return self._devtools_protocol.get_cookies_for_url(url)
 
     def open_url(self, url):
-        page_result, messages_before = self.debugger_socket.send_return("Page.navigate", {"url": url})
+        page_result, messages_before = self._devtools_protocol.send_command_return("Page.navigate", {"url": url})
         if not page_result:
             return False
 
@@ -83,7 +60,7 @@ class RemoteDebug(object):
             "Page.loadEventFired",
             "Page.domContentEventFired"
         ]
-        events_found, messages_after = self.debugger_socket.read_until_events(events_for_wait)
+        events_found, messages_after = self._devtools_protocol.read_until_events(events_for_wait)
         if not events_found:
             return False
 
@@ -103,21 +80,21 @@ class RemoteDebug(object):
         return filtered
 
     def get_html_raw(self, request_id):
-        result = self.debugger_socket.send("Network.getResponseBody", {"requestId": request_id})
+        result = self._devtools_protocol.send_command("Network.getResponseBody", {"requestId": request_id})
         if not result:
             return ""
         return result["body"] if "body" in result else ""
 
     def get_html_dom(self):
-        result = self.debugger_socket.send("DOM.getDocument")
+        result = self._devtools_protocol.send_command("DOM.getDocument")
         if not result:
             return ""
         root_node = result["root"]["nodeId"]
-        html_object = self.debugger_socket.send("DOM.getOuterHTML", {"nodeId": root_node})
+        html_object = self._devtools_protocol.send_command("DOM.getOuterHTML", {"nodeId": root_node})
         return html_object["outerHTML"] if html_object else ""
 
     def wait(self, wait_time):
-        return self.debugger_socket.read_until_timeout(wait_time)
+        return self._devtools_protocol.read_until_timeout(wait_time)
 
     def get_version(self):
-        return self.debugger_socket.send("Browser.getVersion")
+        return self._devtools_protocol.send_command("Browser.getVersion")

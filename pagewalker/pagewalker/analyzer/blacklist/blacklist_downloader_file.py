@@ -47,7 +47,7 @@ class BlacklistDownloaderFile(object):
             f.write(timestamp)
 
     def _download_file(self, url):
-        headers = {"user-agent": config.user_agent}
+        headers = {"user-agent": config.requests_user_agent}
         try:
             r = requests.get(url, headers=headers, timeout=30)
         except RequestException as e:

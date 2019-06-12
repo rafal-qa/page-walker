@@ -2,8 +2,8 @@ import time
 
 
 class RemoteDebugActions(object):
-    def __init__(self, debugger_socket):
-        self.debugger_socket = debugger_socket
+    def __init__(self, devtools_protocol):
+        self._devtools_protocol = devtools_protocol
 
     def set_text(self, element_css, text):
         javascript = "document.querySelector('%s').value = '%s';" % (element_css, text)
@@ -46,5 +46,5 @@ class RemoteDebugActions(object):
         )
 
     def execute_javascript(self, expression):
-        result = self.debugger_socket.send("Runtime.evaluate", {"expression": expression})
+        result = self._devtools_protocol.send_command("Runtime.evaluate", {"expression": expression})
         return result["result"]

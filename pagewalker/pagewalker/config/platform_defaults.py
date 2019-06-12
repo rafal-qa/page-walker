@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 import platform
 
 
-class System(metaclass=ABCMeta):
+class SystemAbstract(metaclass=ABCMeta):
     @property
     @abstractmethod
     def java_binary(self):
@@ -13,8 +13,13 @@ class System(metaclass=ABCMeta):
     def chrome_binary(self):
         pass
 
+    @property
+    @abstractmethod
+    def adb_binary_file(self):
+        pass
 
-class Windows(System):
+
+class Windows(SystemAbstract):
     @property
     def java_binary(self):
         return "Java"
@@ -25,8 +30,12 @@ class Windows(System):
         registry = windows_registry.WindowsRegistry()
         return registry.chrome_exe_path()
 
+    @property
+    def adb_binary_file(self):
+        return "adb.exe"
 
-class MacOS(System):
+
+class MacOS(SystemAbstract):
     @property
     def java_binary(self):
         return "java"
@@ -35,8 +44,12 @@ class MacOS(System):
     def chrome_binary(self):
         return "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
+    @property
+    def adb_binary_file(self):
+        return "adb"
 
-class Linux(System):
+
+class Linux(SystemAbstract):
     @property
     def java_binary(self):
         return "java"
@@ -44,6 +57,10 @@ class Linux(System):
     @property
     def chrome_binary(self):
         return "google-chrome"
+
+    @property
+    def adb_binary_file(self):
+        return "adb"
 
 
 os_type = platform.system()
@@ -56,3 +73,4 @@ else:
 
 java_binary = defaults.java_binary
 chrome_binary = defaults.chrome_binary
+adb_binary_file = defaults.adb_binary_file

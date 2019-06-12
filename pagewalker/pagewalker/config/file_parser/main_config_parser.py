@@ -30,16 +30,18 @@ class MainConfigParser(INIReader):
             "boolean": [
                 "scroll_after_load", "chrome_headless", "chrome_close_on_finish",
                 "chrome_ignore_cert", "validator_enabled", "validator_check_css", "validator_show_warnings",
-                "pages_list_only", "check_external_links", "domain_blacklist_enabled", "domain_blacklist_auto_update"
+                "pages_list_only", "check_external_links", "domain_blacklist_enabled", "domain_blacklist_auto_update",
+                "mobile_emulation_enabled", "android_browser_enabled"
             ],
             "dimension": [
-                "window_size"
+                "window_size", "mobile_window_size"
             ],
             "file": [
                 "pages_list_file", "custom_cookies_file", "initial_actions_file"
             ],
             "any": [
-                "chrome_binary", "http_basic_auth_data", "validator_vnu_jar", "java_binary"
+                "chrome_binary", "http_basic_auth_data", "validator_vnu_jar", "java_binary", "mobile_user_agent",
+                "android_adb_binary"
             ]
         }
         for name, value in self._get_non_empty_values("main").items():

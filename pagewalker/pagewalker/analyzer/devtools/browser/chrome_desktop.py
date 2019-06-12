@@ -1,21 +1,20 @@
+import time
 from os import path
 from subprocess import Popen
 from pagewalker.utilities import filesystem_utils, error_utils
 from pagewalker.config import config
-from .browser import Browser
+from .browser_abstract import BrowserAbstract
 
 
-class ChromeDesktop(Browser):
-    def __init__(self):
-        self.log_file_name = "chrome_run.log"
-        subdir = "port_%s" % config.chrome_debugging_port
-        self.profile_dir = path.join(config.chrome_data_dir, subdir)
+class ChromeDesktop(BrowserAbstract):
+    _log_file_name = "chrome_run.log"
+    _subdir = "port_%s" % config.chrome_debugging_port
+    _profile_dir = path.join(config.chrome_data_dir, _subdir)
 
-    def run(self):
+    def _start_browser(self):
         self._check_chrome_binary_set()
-        filesystem_utils.clean_directory(self.profile_dir)
+        filesystem_utils.clean_directory(self._profile_dir)
         self._exec_command()
-        self._print_start_message()
 
     def _check_chrome_binary_set(self):
         if not config.chrome_binary:
@@ -23,7 +22,7 @@ class ChromeDesktop(Browser):
 
     def _exec_command(self):
         command_parts = self._build_command()
-        log_file = path.join(config.current_data_dir, self.log_file_name)
+        log_file = path.join(config.current_data_dir, self._log_file_name)
         chrome_log = open(log_file, "w")
         try:
             Popen(command_parts, stdout=chrome_log, stderr=chrome_log)
@@ -37,7 +36,7 @@ class ChromeDesktop(Browser):
             "--remote-debugging-port=%s" % config.chrome_debugging_port,
             "--window-size=%s" % window_size_command,
             "--no-first-run",
-            "--user-data-dir=%s" % self.profile_dir
+            "--user-data-dir=%s" % self._profile_dir
         ]
         if config.chrome_headless:
             command_parts.append("--headless")
@@ -57,4 +56,14 @@ class ChromeDesktop(Browser):
         error_utils.exit_with_message(message)
 
     def _print_start_message(self):
-        print("[INFO] Running Chrome Desktop, saving output to %s" % self.log_file_name)
+        print("[INFO] Running Chrome Desktop, saving output to %s" % self._log_file_name)
+
+    def close(self):
+        self._devtools_protocol.send_browser_close()
+
+    def close_previously_unclosed(self):
+        msg = "Chrome Desktop instance is already running on port %s" % config.chrome_debugging_port
+        msg += "\nClosing it now..."
+        error_utils.show_warning(msg)
+        self.close()
+        time.sleep(5)

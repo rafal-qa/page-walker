@@ -63,7 +63,7 @@ class Analyzer(object):
         devtools_parser.append_response(messages)
 
         if config.scroll_after_load:
-            self.devtools_remote.actions.scroll_to_bottom()
+            self.devtools_remote.scroll_to_bottom()
 
         messages = self.devtools_remote.wait(config.wait_time_after_load)
         devtools_parser.append_response(messages)
@@ -80,7 +80,7 @@ class Analyzer(object):
         db_page_writer.completion_status_finished()
 
     def _headers_analysis_before_chrome(self, db_writer, url):
-        cookies_data = self.devtools_remote.get_cookies_for_url(url)
+        cookies_data = self.devtools_remote.get_cookies(url)
         http_headers = http_headers_analyzer.HTTPHeadersAnalyzer(config.chrome_timeout)
         url_result = http_headers.analyze_for_chrome(url, cookies_data)
         status = url_result["status"]

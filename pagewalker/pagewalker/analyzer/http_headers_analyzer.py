@@ -11,6 +11,7 @@ class HTTPHeadersAnalyzer(object):
     def __init__(self, timeout):
         self.timeout = timeout
         self.r = None
+        self._user_agent = config.requests_user_agent
 
     def analyze_for_chrome(self, url, cookies_data):
         allow_redirects = False
@@ -47,6 +48,8 @@ class HTTPHeadersAnalyzer(object):
         }
 
     def check_valid_first_url(self):
+        if config.mobile_emulation_enabled:
+            self._user_agent = config.mobile_user_agent
         url = self._get_first_url()
         allow_redirects = True
         verify_ssl = False
@@ -119,7 +122,7 @@ class HTTPHeadersAnalyzer(object):
         return optional_args
 
     def _http_get_only_headers(self, url, allow_redirects, verify_ssl, cookie_jar):
-        headers = {"user-agent": config.user_agent}
+        headers = {"user-agent": self._user_agent}
         if config.http_basic_auth_data:
             headers["authorization"] = "Basic %s" % text_utils.base64_encode(config.http_basic_auth_data)
         hooks = {"response": lambda response, *args, **kwargs: response.close()}
