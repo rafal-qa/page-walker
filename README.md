@@ -168,16 +168,16 @@ You can run Page Walker without any parameters. It's the same as double-clicking
 | --------------------- | ----------------- | ------------- | ----------- |
 | `-u` or `--url` | `start_url` | | URL of first page to visit, with `http(s)://`. |
 | `-p` or `--pages` | `max_number_pages` | 10 | Maximum number of pages to visit. |
-| `-l` or `--headless` | `chrome_headless` | no | [yes/no] Run Chrome in headless mode. |
+| `--headless` | `chrome_headless` | no | [yes/no] Run Chrome in headless mode. |
 | `--pages-list` | `pages_list_file` | | [Optional] File containing list of pages to visit. Pages relative to main domain, starting with `/`. |
 | `--list-only` | `pages_list_only` | yes | [yes/no] Visit all and only pages from file, regardless of _maximum number of pages_ value. Option has no effect if file with pages list is not set. |
 | `--wait-after` | `wait_time_after_load` | 1 | Wait time (in seconds) after page was loaded (browser received `Load` event). Even after `Load` event the browser usually downloads some data so it's better to set it for 1-3 seconds.
 | `--scroll-after` | `scroll_after_load` | yes | [yes/no] Scroll to bottom of page after page was loaded, before _wait time_. While scrolling browser can receive more events and data to analyze. |
-| `--window-size` | `window_size` | 1366x768 | Size of browser window. |
+| n/a | `window_size` | 1366x768 | Size of desktop browser window. |
 | `--close-on-finish` | `chrome_close_on_finish` | yes | [yes/no] Close browser after finish. For debugging you can set to _no_ to interact with browser after app has finished running. |
 | `--chrome-port` | `chrome_debugging_port` | 9222 | Chrome remote debugger port number. To run multiple tests in parallel set different port for every instance. |
 | `--chrome-timeout` | `chrome_timeout` | 30 | Chrome connection timeout in seconds. How long to wait for `Load` event. |
-| `--chrome-binary` | `chrome_binary` | Auto-detected on Windows, `google-chrome` otherwise. | Path to Chrome executable file. |
+| `--chrome-binary` | `chrome_binary` | System dependent, auto-detected on Windows | Path to Chrome executable file. |
 | `--chrome-ignore-cert` | `chrome_ignore_cert` | no | [yes/no] Ignore SSL errors. Set to _yes_ if you want to test a website with invalid SSL certificate. |
 | `--http-auth` | `http_basic_auth_data` | | HTTP Basic authentication credentials in format `login:password` |
 | `--cookies-file` | `custom_cookies_file` | | Config file with custom cookies definition, more: [Custom cookies](docs/custom-cookies.md) |
@@ -187,7 +187,7 @@ You can run Page Walker without any parameters. It's the same as double-clicking
 | n/a | `validator_check_css` | yes | [yes/no] Check also inline CSS. Option has no effect if HTML validator is disabled. |
 | n/a | `validator_show_warnings` | yes | [yes/no] Report also warnings (in addition to errors). Option has no effect if HTML validator is disabled. |
 | n/a | `validator_vnu_jar` | `lib/vnu/vnu.jar` | Path to vNu HTML validator JAR file. |
-| n/a | `java_binary` | `Java` on Windows, `java` otherwise. | Path to Java executable file. To use custom Java unpacked to `lib` directory, set for example to `lib/jre{ver}/bin/java` |
+| n/a | `java_binary` | System dependent | Path to Java executable file. To use custom Java unpacked to `lib` directory, set for example to `lib/jre{ver}/bin/java` |
 | n/a | `java_stack_size` | 4096 | Java stack size [KB]. If you experience stack overflow errors while validating extremely large HTML page, increase it. |
 | `--check-links` | `check_external_links` | yes | [yes/no] Check HTTP response status of external links. |
 | n/a | `check_external_links_timeout` | 10 | External links checking connection timeout in seconds. | 

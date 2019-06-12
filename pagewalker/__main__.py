@@ -11,14 +11,15 @@ from pagewalker.config.file_parser import main_config_parser, cookies_config_par
 main_config_parser.MainConfigParser().apply()
 
 argparse_types = config_validator.ConfigValidatorArgparse()
-parser = argparse.ArgumentParser()
+argparse_description = "All of the following and other options can be configured in a file: %s" % config.ini_file
+parser = argparse.ArgumentParser(description=argparse_description)
 parser.add_argument("-u", "--url", dest="start_url",
                     help="Full URL of first page to visit (http://example.com/page.html)",
                     type=argparse_types.url)
 parser.add_argument("-p", "--pages", dest="max_number_pages",
                     help="Maximum number of pages to visit",
                     type=argparse_types.positive_non_zero_integer)
-parser.add_argument("-l", "--headless", dest="chrome_headless",
+parser.add_argument("--headless", dest="chrome_headless",
                     help="Run Chrome in headless mode (yes/no)",
                     type=argparse_types.boolean)
 parser.add_argument("--pages-list", dest="pages_list_file",
@@ -33,9 +34,6 @@ parser.add_argument("--wait-after", dest="wait_time_after_load",
 parser.add_argument("--scroll-after", dest="scroll_after_load",
                     help="Scroll to bottom of page after page was loaded (yes/no)",
                     type=argparse_types.boolean)
-parser.add_argument("--window-size", dest="window_size",
-                    help="Size of browser window in format [width]x[height]",
-                    type=argparse_types.dimension)
 parser.add_argument("--close-on-finish", dest="chrome_close_on_finish",
                     help="Close browser after finish (yes/no)",
                     type=argparse_types.boolean)
