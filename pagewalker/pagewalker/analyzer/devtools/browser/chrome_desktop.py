@@ -16,6 +16,14 @@ class ChromeDesktop(BrowserAbstract):
         filesystem_utils.clean_directory(self._profile_dir)
         self._exec_command()
 
+    @property
+    def browser_type(self):
+        return "Chrome desktop"
+
+    @property
+    def window_size(self):
+        return config.window_size
+
     def _check_chrome_binary_set(self):
         if not config.chrome_binary:
             self._chrome_not_found()
@@ -56,13 +64,13 @@ class ChromeDesktop(BrowserAbstract):
         error_utils.exit_with_message(message)
 
     def _print_start_message(self):
-        print("[INFO] Running Chrome Desktop, saving output to %s" % self._log_file_name)
+        print("[INFO] Running Chrome desktop, saving output to %s" % self._log_file_name)
 
     def close(self):
         self._devtools_protocol.send_browser_close()
 
     def close_previously_unclosed(self):
-        msg = "Chrome Desktop instance is already running on port %s" % config.chrome_debugging_port
+        msg = "Chrome desktop instance is already running on port %s" % config.chrome_debugging_port
         msg += "\nClosing it now..."
         error_utils.show_warning(msg)
         self.close()

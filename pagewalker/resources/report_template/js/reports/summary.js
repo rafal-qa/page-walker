@@ -29,10 +29,10 @@ class SummaryReport {
             }
         }
         if (this.config_data.validator_enabled === "No") {
-            $('.validator-details-table').hide();
+            $('.validator-enabled-only').hide();
         }
         if (this.config_data.check_external_links === "No") {
-            $('.info-check_external_links_timeout').parent().hide();
+            $('.check-external-links-only').hide();
         }
     }
 

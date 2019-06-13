@@ -4,6 +4,14 @@ from pagewalker.config import config
 
 
 class ChromeMobileEmulator(ChromeDesktop):
+    @property
+    def browser_type(self):
+        return "Chrome mobile emulator"
+
+    @property
+    def window_size(self):
+        return config.mobile_window_size
+
     def _print_start_message(self):
         print("[INFO] Running Chrome in mobile emulation mode, saving output to %s" % self._log_file_name)
 

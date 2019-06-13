@@ -1,4 +1,5 @@
-from . import devtools_protocol, remote_debug_actions
+from collections import namedtuple
+from . import devtools_protocol, remote_debug_javascript
 from pagewalker.analyzer import initial_actions
 from .browser import browser_factory
 from pagewalker.utilities import error_utils
@@ -44,9 +45,20 @@ class RemoteDebug(object):
         msg += "\nYou can manually inspect it on http://localhost:%s" % config.chrome_debugging_port
         error_utils.show_warning(msg)
 
+    @property
+    def browser_metadata(self):
+        version = self._devtools_protocol.send_command("Browser.getVersion")
+        BrowserMetadata = namedtuple("BrowserMetadata", "chrome_version protocol_version browser_type window_size")
+        return BrowserMetadata(
+            version["product"],
+            version["protocolVersion"],
+            self._browser.browser_type,
+            self._browser.window_size
+        )
+
     def scroll_to_bottom(self):
-        actions = remote_debug_actions.RemoteDebugActions(self._devtools_protocol)
-        actions.scroll_to_bottom()
+        javascript = remote_debug_javascript.RemoteDebugJavascript(self._devtools_protocol)
+        javascript.scroll_to_bottom()
 
     def get_cookies(self, url):
         return self._devtools_protocol.get_cookies_for_url(url)
@@ -95,6 +107,3 @@ class RemoteDebug(object):
 
     def wait(self, wait_time):
         return self._devtools_protocol.read_until_timeout(wait_time)
-
-    def get_version(self):
-        return self._devtools_protocol.send_command("Browser.getVersion")

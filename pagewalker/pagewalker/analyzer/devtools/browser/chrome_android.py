@@ -2,12 +2,13 @@ import time
 from subprocess import Popen, PIPE
 from pagewalker.utilities import text_utils, error_utils
 from pagewalker.config import config
+from .. import remote_debug_javascript
 from .browser_abstract import BrowserAbstract
 
 
 class ChromeAndroid(BrowserAbstract):
     _adb_devices_list = []
-    _device_model = None
+    _device_model = "unknown"
 
     def _start_browser(self):
         self._adb_kill_server()
@@ -17,6 +18,15 @@ class ChromeAndroid(BrowserAbstract):
         self._wait_for_authorization()
         self._get_device_model()
         self._activate_connection_to_device()
+
+    @property
+    def browser_type(self):
+        return "Chrome for Android (device: %s)" % self._device_model
+
+    @property
+    def window_size(self):
+        javascript = remote_debug_javascript.RemoteDebugJavascript(self._devtools_protocol)
+        return "%sx%s" % (javascript.screen_width, javascript.screen_height)
 
     @property
     def _devices_count(self):

@@ -98,6 +98,18 @@
               <td>Finished</td>
               <td class="info-time_end"></td>
             </tr>
+          </tbody>
+        </table>
+        <table class="ui definition unstackable padded table">
+          <tbody>
+            <tr>
+              <td>Browser type</td>
+              <td class="info-browser_type"></td>
+            </tr>
+            <tr>
+              <td>Window size (width x height)</td>
+              <td class="info-window_size"></td>
+            </tr>
             <tr>
               <td>Chrome version</td>
               <td class="info-chrome_version"></td>
@@ -113,38 +125,6 @@
             <tr>
               <td>Page Walker version</td>
               <td class="info-app_version"></td>
-            </tr>
-          </tbody>
-        </table>
-        <table class="ui definition unstackable padded table">
-          <tbody>
-            <tr>
-              <td>Check external links</td>
-              <td class="info-check_external_links"></td>
-            </tr>
-            <tr>
-              <td>Connection timeout [sec]</td>
-              <td class="info-check_external_links_timeout"></td>
-            </tr>
-          </tbody>
-        </table>
-        <table class="ui definition unstackable padded table">
-          <tbody>
-            <tr>
-              <td>Domain blacklist</td>
-              <td class="info-domain_blacklist"></td>
-            </tr>
-            <tr>
-              <td>Custom cookies</td>
-              <td class="info-custom_cookies"></td>
-            </tr>
-            <tr>
-              <td>Initial actions</td>
-              <td class="info-initial_actions"></td>
-            </tr>
-            <tr>
-              <td>HTTP Basic authentication</td>
-              <td class="info-http_basic_auth"></td>
             </tr>
           </tbody>
         </table>
@@ -170,39 +150,64 @@
               <td class="info-scroll_after_load"></td>
             </tr>
             <tr>
-              <td>Window size (width x height)</td>
-              <td class="info-window_size"></td>
-            </tr>
-            <tr>
               <td>Chrome timeout [sec]</td>
               <td class="info-chrome_timeout"></td>
             </tr>
+          </tbody>
+        </table>
+        <table class="ui definition unstackable padded table">
+          <tbody>
+            <tr>
+              <td>Domain blacklist</td>
+              <td class="info-domain_blacklist"></td>
+            </tr>
+            <tr>
+              <td>Custom cookies</td>
+              <td class="info-custom_cookies"></td>
+            </tr>
+            <tr>
+              <td>Initial actions</td>
+              <td class="info-initial_actions"></td>
+            </tr>
+            <tr>
+              <td>HTTP Basic authentication</td>
+              <td class="info-http_basic_auth"></td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="ui definition unstackable padded table">
+            <tbody>
+              <tr>
+                <td>Check external links</td>
+                <td class="info-check_external_links"></td>
+              </tr>
+              <tr class="check-external-links-only">
+                <td>Connection timeout [sec]</td>
+                <td class="info-check_external_links_timeout"></td>
+              </tr>
+            </tbody>
+          </table>
+        <table class="ui definition unstackable padded table">
+          <tbody>
             <tr>
               <td>Validate HTML</td>
               <td class="info-validator_enabled"></td>
             </tr>
+            <tr class="validator-enabled-only">
+              <td>v.Nu version</td>
+              <td class="info-vnu_version"></td>
+            </tr>
+            <tr class="validator-enabled-only">
+              <td>Validate CSS</td>
+              <td class="info-validator_css"></td>
+            </tr>
+            <tr class="validator-enabled-only">
+              <td>Show warnings</td>
+              <td class="info-validator_warnings"></td>
+            </tr>
           </tbody>
         </table>
 
-        <div class="validator-details-table">
-          <h3 class="ui header">HTML validator details</h3>
-          <table class="ui definition unstackable padded table">
-            <tbody>
-              <tr>
-                <td>v.Nu version</td>
-                <td class="info-vnu_version"></td>
-              </tr>
-              <tr>
-                <td>Validate CSS</td>
-                <td class="info-validator_css"></td>
-              </tr>
-              <tr>
-                <td>Show warnings</td>
-                <td class="info-validator_warnings"></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
       </div>
 
     </div>

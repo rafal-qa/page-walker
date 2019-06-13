@@ -1,9 +1,18 @@
 import time
+from pagewalker.utilities import error_utils
 
 
-class RemoteDebugActions(object):
+class RemoteDebugJavascript(object):
     def __init__(self, devtools_protocol):
         self._devtools_protocol = devtools_protocol
+
+    @property
+    def screen_width(self):
+        return self._return_value("window.screen.availWidth;")
+
+    @property
+    def screen_height(self):
+        return self._return_value("window.screen.availHeight;")
 
     def set_text(self, element_css, text):
         javascript = "document.querySelector('%s').value = '%s';" % (element_css, text)
@@ -19,7 +28,7 @@ class RemoteDebugActions(object):
 
     def _execute_if_element_present(self, element_css, javascript):
         if self.is_element_present(element_css):
-            self.execute_javascript(javascript)
+            self._execute(javascript)
             return True
         return False
 
@@ -35,16 +44,23 @@ class RemoteDebugActions(object):
         return False
 
     def is_element_present(self, element_css):
-        result = self.execute_javascript(
+        result = self._execute(
             "document.querySelector('%s');" % element_css
         )
         return result["subtype"] != "null"
 
     def scroll_to_bottom(self):
-        self.execute_javascript(
-            "window.scrollTo(0,document.body.scrollHeight);"
-        )
+        self._execute("window.scrollTo(0,document.body.scrollHeight);")
 
-    def execute_javascript(self, expression):
+    def _return_value(self, expression):
+        result = self._execute(expression)
+        if "value" not in result:
+            msg = "JavaScript execution failed"
+            msg += "\nExpression: %s" % expression
+            msg += "\nResult data: %s" % result
+            error_utils.exit_with_message(msg)
+        return result["value"]
+
+    def _execute(self, expression):
         result = self._devtools_protocol.send_command("Runtime.evaluate", {"expression": expression})
         return result["result"]

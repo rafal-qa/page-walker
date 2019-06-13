@@ -64,6 +64,16 @@ class BrowserAbstract(metaclass=ABCMeta):
             self._devtools_protocol.send_command("Network.setExtraHTTPHeaders", {"headers": headers})
 
     @property
+    @abstractmethod
+    def browser_type(self):
+        pass
+
+    @property
+    @abstractmethod
+    def window_size(self):
+        pass
+
+    @property
     def user_agent(self):
         version_data = self._devtools_protocol.send_command("Browser.getVersion")
         return version_data["userAgent"]

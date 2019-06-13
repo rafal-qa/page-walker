@@ -1,4 +1,4 @@
-from .devtools import remote_debug_actions
+from .devtools import remote_debug_javascript
 from pagewalker.utilities import error_utils
 from pagewalker.config import config
 
@@ -6,7 +6,7 @@ from pagewalker.config import config
 class InitialActions(object):
     def __init__(self, remote_debug, devtools_protocol):
         self._remote_debug = remote_debug
-        self._actions = remote_debug_actions.RemoteDebugActions(devtools_protocol)
+        self._javascript = remote_debug_javascript.RemoteDebugJavascript(devtools_protocol)
         self._apply()
 
     def _apply(self):
@@ -20,14 +20,14 @@ class InitialActions(object):
         action = action_data["action"]
         element_css = action_data["css"]
         if action == "set_text":
-            found = self._actions.set_text(element_css, action_data["text"])
+            found = self._javascript.set_text(element_css, action_data["text"])
         elif action == "click":
-            found = self._actions.click(element_css)
+            found = self._javascript.click(element_css)
         elif action == "submit":
-            found = self._actions.submit(element_css)
+            found = self._javascript.submit(element_css)
         elif action == "wait_element_present":
             timeout = int(action_data["timeout"])
-            found = self._actions.wait_element_present(element_css, timeout)
+            found = self._javascript.wait_element_present(element_css, timeout)
         else:
             found = False
         if not found:

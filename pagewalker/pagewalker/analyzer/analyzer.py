@@ -19,7 +19,7 @@ class Analyzer(object):
         self.external_links.set_db_connection(db_connection)
 
         self.devtools_remote.start_session()
-        self._save_chrome_version()
+        self._save_browser_metadata()
         self.db_admin.add_to_config("vnu_version", self.validator.get_vnu_version())
 
         if config.pages_list_file and config.pages_list_only:
@@ -123,7 +123,9 @@ class Analyzer(object):
         external = links.filter_external(all_links)
         self.external_links.add_links(db_writer.get_page_id(), external)
 
-    def _save_chrome_version(self):
-        version = self.devtools_remote.get_version()
-        self.db_admin.add_to_config("chrome_version", version["product"])
-        self.db_admin.add_to_config("devtools_protocol", version["protocolVersion"])
+    def _save_browser_metadata(self):
+        data = self.devtools_remote.browser_metadata
+        self.db_admin.add_to_config("chrome_version", data.chrome_version)
+        self.db_admin.add_to_config("devtools_protocol", data.protocol_version)
+        self.db_admin.add_to_config("browser_type", data.browser_type)
+        self.db_admin.add_to_config("window_size", data.window_size)

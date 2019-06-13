@@ -60,7 +60,6 @@ class DatabaseAdmin(object):
         config_values = {
             "wait_time_after_load": config.wait_time_after_load,
             "max_number_pages": config.max_number_pages,
-            "window_size": config.window_size,
             "headless": self._boolean_to_yes_no(config.chrome_headless),
             "chrome_timeout": config.chrome_timeout,
             "validator_enabled":  self._boolean_to_yes_no(config.validator_enabled),
