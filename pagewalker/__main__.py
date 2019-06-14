@@ -1,18 +1,19 @@
 import argparse
 from pagewalker import print_version
-from pagewalker.utilities import console_utils, error_utils, prepare_directories
+from pagewalker.utilities import error_utils, prepare_directories
 from pagewalker.analyzer import analyzer, http_headers_analyzer
 from pagewalker.analyzer.blacklist import blacklist_downloader
 from pagewalker.report import report
-from pagewalker.config import config_validator, java_checker, config
+from pagewalker.config import config_validator, java_checker, config, interactive_config
 from pagewalker.config.file_parser import main_config_parser, cookies_config_parser, initial_actions_config_parser
 
 
 main_config_parser.MainConfigParser().apply()
 
 argparse_types = config_validator.ConfigValidatorArgparse()
+argparse_usage = "Add the necessary arguments or run without any arguments in the interactive mode"
 argparse_description = "All of the following and other options can be configured in a file: %s" % config.ini_file
-parser = argparse.ArgumentParser(description=argparse_description)
+parser = argparse.ArgumentParser(usage=argparse_usage, description=argparse_description)
 parser.add_argument("-u", "--url", dest="start_url",
                     help="Full URL of first page to visit (http://example.com/page.html)",
                     type=argparse_types.url)
@@ -88,18 +89,7 @@ for config_name in vars(args):
 if config.validator_enabled:
     java_checker.JavaChecker().disable_validator_if_no_java()
 
-if console_utils.interactive_mode:
-    config_types = config_validator.ConfigValidatorInteractive()
-    config.start_url = config_types.url(
-        console_utils.read_input("Start URL to test", config.start_url)
-    )
-    config.max_number_pages = config_types.positive_non_zero_integer(
-        console_utils.read_input("Number of pages to visit", config.max_number_pages)
-    )
-    headless_default = "y" if config.chrome_headless else "n"
-    config.chrome_headless = config_types.boolean(
-        console_utils.read_input("Headless mode (y/n)", headless_default)
-    )
+interactive_config.InteractiveConfig().ask_for_config_if_interactive_mode()
 
 if not config.start_url:
     error_utils.exit_with_message("Start URL is required")
@@ -120,5 +110,3 @@ prepare_directories.PrepareDirectories().create()
 analyzer.Analyzer().start_new_analysis()
 
 report.Report().generate_html()
-
-console_utils.finish()

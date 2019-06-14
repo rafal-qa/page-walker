@@ -1,4 +1,5 @@
 output/
 temp/
 lib/vnu/
+lib/platform-tools/
 *.pyc
