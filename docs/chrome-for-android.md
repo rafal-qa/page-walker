@@ -15,3 +15,23 @@ Page Walker uses *Android Debug Bridge* (adb) to provide remote debugging connec
 [Download Platform Tools](https://developer.android.com/studio/releases/platform-tools.html) for your system and unpack to `lib` directory in `page-walker` root directory. Default ADB location in Page Walker is `lib/platform-tools/adb` (file `adb` in `platform-tools` directory).
 
 Run Page Walker with command line option: `--android-browser yes`
+
+## How it works
+
+#### Clearing the cache
+
+When running Chrome desktop (or mobile emulation) temporary profile directory is always deleted. This profile contains all data: cache, cookies, history.
+
+With Chrome for Android it's not possible. Instead of, before each test:
+* Browser cache is cleared (but no cookies, history)
+* Previous cookies only for tested website are deleted
+
+#### No resource with given identifier found
+
+```
+[FAIL] Network.getResponseBody | No resource with given identifier found
+```
+
+Above message can mean:
+* Your device has no internet connection.
+* Chrome browser on device is not running. Try to open Chrome. Normally it's enough to run in the background.
