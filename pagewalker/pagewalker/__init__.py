@@ -5,7 +5,7 @@ import os
 from os.path import dirname
 
 
-version_info = (1, 1, 0)
+version_info = (1, 2, 0)
 version = '.'.join(str(c) for c in version_info)
 
 

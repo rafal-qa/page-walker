@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.2.0 (2019-06-16)
+
+#### New features
+
+* Mobile website testing - mobile emulation, Chrome on Android device
+
+#### Improvements
+
+* Check external links in multiple threads
+* Improved macOS support
+* New way of handling standalone version
+
+#### Other
+
+* Stop supporting Python 2
+* Removed unnecessary configuration
+
 ## v1.1.0 (2018-12-02)
 
 #### New features
