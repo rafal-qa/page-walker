@@ -4,7 +4,7 @@
 
 Chrome DevTools automation for desktop and mobile devices.
 
-The result is an interactive report - [see example report](https://rafal-qa.com/pagewalker-example-report/).
+The result is an interactive report - [see example report](https://rafal-qa.github.io/pagewalker-example-report/).
 
 ### How it can help in testing?
 
